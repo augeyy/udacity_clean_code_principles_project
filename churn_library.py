@@ -6,59 +6,86 @@ import os
 os.environ['QT_QPA_PLATFORM']='offscreen'
 
 
-
 def import_data(pth):
-    '''
-    returns dataframe for the csv found at pth
+    """
+    Read CSV file as DataFrame
 
-    input:
-            pth: a path to the csv
-    output:
-            df: pandas dataframe
-    '''	
-	pass
+    Parameters
+    ----------
+    pth : str
+        A path to the CSV file to read
+
+    Returns
+    -------
+    df : pd.DataFrame
+        CSV file read as a DataFrame
+    """
+    pass
 
 
 def perform_eda(df):
-    '''
-    perform eda on df and save figures to images folder
-    input:
-            df: pandas dataframe
+    """
+    Perform EDA on DataFrame and save figures to the `images` folder
 
-    output:
-            None
-    '''
-	pass
+    Parameters
+    ----------
+    df : pd.DataFrame
+        DataFrame on which to perform EDA
+
+    Returns
+    -------
+    None
+    """
+    pass
 
 
 def encoder_helper(df, category_lst, response):
-    '''
-    helper function to turn each categorical column into a new column with
-    propotion of churn for each category - associated with cell 15 from the notebook
+    """
+    Encode categorical column into a new column with proportion
+    of churn for each category
 
-    input:
-            df: pandas dataframe
-            category_lst: list of columns that contain categorical features
-            response: string of response name [optional argument that could be used for naming variables or index y column]
+    Parameters
+    ----------
+    df : pd.DataFrame
+        DataFrame on which to perform encoding
 
-    output:
-            df: pandas dataframe with new columns for
-    '''
+    category_lst : List[str]
+        List of columns that contain categorical features
+
+    response : str
+        String of response name
+
+    Returns
+    -------
+    df : pd.DataFrame
+        DataFrame with new columns for
+    """
     pass
 
 
 def perform_feature_engineering(df, response):
-    '''
-    input:
-              df: pandas dataframe
-              response: string of response name [optional argument that could be used for naming variables or index y column]
+    """
+    Perform feature engineering
 
-    output:
-              X_train: X training data
-              X_test: X testing data
-              y_train: y training data
-              y_test: y testing data
-    '''
+    Parameters
+    ----------
+    df : pd.DataFrame
+        DataFrame on which to perform feature engineering
+
+    response: str
+        String of response name
+
+    Returns
+    -------
+    X_train : ndarray
+        X training data
+    X_test : ndarray
+        X testing data
+    y_train : ndarray
+        y training data
+    y_test : ndarray
+        y testing data
+    """
 
 def classification_report_image(y_train,
                                 y_test,
@@ -66,45 +93,70 @@ def classification_report_image(y_train,
                                 y_train_preds_rf,
                                 y_test_preds_lr,
                                 y_test_preds_rf):
-    '''
-    produces classification report for training and testing results and stores report as image
-    in images folder
-    input:
-            y_train: training response values
-            y_test:  test response values
-            y_train_preds_lr: training predictions from logistic regression
-            y_train_preds_rf: training predictions from random forest
-            y_test_preds_lr: test predictions from logistic regression
-            y_test_preds_rf: test predictions from random forest
+    """
+    Produces classification report for training and testing results
+    and stores report as image in `images` folder
 
-    output:
-             None
-    '''
+    Parameters
+    ----------
+    y_train : ndarray
+        Training response values
+    y_test : ndarray
+        Test response values
+    y_train_preds_lr : ndarray
+        Training predictions from logistic regression
+    y_train_preds_rf : ndarray
+        Training predictions from random forest
+    y_test_preds_lr : ndarray
+        Test predictions from logistic regression
+    y_test_preds_rf : ndarray
+        Test predictions from random forest
+
+    Returns
+    -------
+    None
+    """
     pass
 
 
 def feature_importance_plot(model, X_data, output_pth):
-    '''
-    creates and stores the feature importances in pth
-    input:
-            model: model object containing feature_importances_
-            X_data: pandas dataframe of X values
-            output_pth: path to store the figure
+    """
+    Creates and stores the feature importances in pth
 
-    output:
-             None
-    '''
+    Parameters
+    ----------
+    model
+        Model object containing `feature_importances_` attributes
+
+    X_data : pd.DataFrame
+        DataFrame of X values
+
+    output_pth : str
+        Path to store the figure
+
+    Returns
+    -------
+        None
+    """
     pass
 
 def train_models(X_train, X_test, y_train, y_test):
-    '''
-    train, store model results: images + scores, and store models
-    input:
-              X_train: X training data
-              X_test: X testing data
-              y_train: y training data
-              y_test: y testing data
-    output:
-              None
-    '''
+    """
+    Train, store model results: images + scores, and store models
+
+    Parameters
+    ----------
+    X_train : ndarray
+        X training data
+    X_test : ndarray
+        X testing data
+    y_train : ndarray
+        y training data
+    y_test : ndarray
+        y testing data
+
+    Returns
+    ----------
+    None
+    """
     pass
