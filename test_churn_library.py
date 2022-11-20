@@ -9,15 +9,14 @@ import pandas as pd
 import churn_library as cl
 
 
-@pytest.fixture()
-def path():
-	return "./data/bank_data.csv"
-
-
 class TestImportData:
 	"""
 	A class to test for the `cl.import_data` function
 	"""
+
+	@pytest.fixture
+	def path(self):
+		return "./data/bank_data.csv"
 
 	def test_import_success(self, path):
 		'''
@@ -28,7 +27,6 @@ class TestImportData:
 		assert df.shape[0] > 0
 		assert df.shape[1] > 0
 
-	
 	def test_import_file_not_found(self):
 		path = "./this/path/does/not/exists"
 
