@@ -3,6 +3,9 @@ import logging
 
 import pytest
 
+import numpy as np
+import pandas as pd
+
 import churn_library as cl
 
 
@@ -32,6 +35,45 @@ class TestImportData:
 
 		with pytest.raises(FileNotFoundError):
 			cl.import_data(path)
+
+
+class TestMakeChurnColumn:
+	"""
+	A class to test for the `cl.make_target_column` function
+	"""
+
+	@pytest.fixture
+	def input_df(self):
+		return pd.DataFrame(data={
+			"Attrition_Flag": ["Existing Customer", "Attrited Customer"]
+		})
+
+	def test_success(self, input_df):
+		expected_df = pd.DataFrame(data={
+			"Attrition_Flag": ["Existing Customer", "Attrited Customer"],
+			"Churn": [0, 1]
+		})
+
+		df = cl.make_churn_column(input_df)
+
+		assert "Churn" in df.columns
+		assert np.array_equal(df["Churn"].values, np.array([0, 1]))
+
+	def test_column_not_here(self, input_df):
+		# Modify input_df
+		input_df.drop(columns=["Attrition_Flag"], inplace=True)
+
+		with pytest.raises(ValueError):
+			cl.make_churn_column(input_df)
+
+	def test_column_values_invalid(self, input_df):
+		# Modify input_df
+		input_df["Attrition_Flag"] = input_df["Attrition_Flag"].apply(lambda x:
+			"aaa" if x == "Existing Customer" else "Attrited Customer"
+		)
+
+		with pytest.raises(ValueError):
+			cl.make_churn_column(input_df)
 
 # def test_eda(perform_eda):
 # 	'''

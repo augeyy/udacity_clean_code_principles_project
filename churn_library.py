@@ -38,6 +38,45 @@ def import_data(pth):
         raise e
 
 
+def make_churn_column(df):
+    """
+    Create `Churn` column based on values of `Attrition_Flag` field
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        DataFrame containing the column `Attrition_Flag`
+    
+    Returns
+    -------
+    df : pd.DataFrame
+        DataFrame containng the new column `Churn` (modify inplace)
+    """
+    # Check that `Attrition_Flag` exists
+    try:
+        assert "Attrition_Flag" in df.columns
+    except AssertionError:
+        logging.error("ERROR: `Attrition_Flag` column not in df columns")
+        raise ValueError()
+    
+    # Check that `Attrition_Flag` values are well-defined
+    try:
+        expected_values_set = {"Existing Customer", "Attrited Customer"}
+        assert set(df["Attrition_Flag"].unique()).issubset(
+            expected_values_set
+        )
+    except:
+        logging.error(
+            "ERROR: `Attrition_Flag` values must within {expected_values_set})")
+        raise ValueError()
+    
+    df["Churn"] = df["Attrition_Flag"].apply(
+        lambda val: 0 if val == "Existing Customer" else 1)
+
+    return df
+
+
+
 def perform_eda(df):
     """
     Perform EDA on DataFrame and save figures to the `images` folder
