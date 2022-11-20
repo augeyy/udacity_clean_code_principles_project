@@ -9,7 +9,6 @@ import pandas as pd
 import churn_library as cl
 
 
-
 @pytest.fixture()
 def path():
 	return "./data/bank_data.csv"
@@ -75,10 +74,35 @@ class TestMakeChurnColumn:
 		with pytest.raises(ValueError):
 			cl.make_churn_column(input_df)
 
-# def test_eda(perform_eda):
-# 	'''
-# 	test perform eda function
-# 	'''
+
+class TestPerformEda:
+	"""
+	A class to test for the `cl.perform_eda` function
+	"""
+
+	@pytest.fixture
+	def input_df(self):
+		return pd.DataFrame(data={
+			"Churn": [1, 0, 1],
+			"Customer_Age": [30, 31, 50],
+			"Marital_Status": ["Single", "Married", "Married"],
+			"Total_Trans_Ct": [50, 50, 70]
+		}
+		)
+
+	def test_success_images_folder_already_exists(self, input_df, tmp_path):
+		pth = tmp_path
+
+		cl.perform_eda(input_df, str(pth))
+		assert len([f for f in (pth / 'images').iterdir()]) == 5
+
+	def test_success_images_folder_not_exists(self, input_df, tmp_path):
+		pth = tmp_path
+
+		os.makedirs(os.path.join(pth, 'images'))
+
+		cl.perform_eda(input_df, str(pth))
+		assert len([f for f in (pth / 'images').iterdir()]) == 5
 
 
 # def test_encoder_helper(encoder_helper):
