@@ -5,6 +5,15 @@
 import os
 os.environ['QT_QPA_PLATFORM']='offscreen'
 
+import pandas as pd
+
+import logging
+logging.basicConfig(
+    filename='./logs/churn_library.log',
+    level = logging.INFO,
+    filemode='w',
+    format='%(name)s - %(levelname)s - %(message)s')
+
 
 def import_data(pth):
     """
@@ -20,7 +29,13 @@ def import_data(pth):
     df : pd.DataFrame
         CSV file read as a DataFrame
     """
-    pass
+    try:
+        df = pd.read_csv(pth)
+        logging.info(f"SUCCESS: Import data from {pth}")
+        return df
+    except FileNotFoundError as e:
+        logging.error("ERROR: file not found at {pth}")
+        raise e
 
 
 def perform_eda(df):
