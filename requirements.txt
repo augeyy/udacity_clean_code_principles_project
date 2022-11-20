@@ -5,5 +5,3 @@ pandas
 numpy
 matplotlib
 seaborn
-pylint
-autopep8
