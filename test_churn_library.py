@@ -34,9 +34,9 @@ class TestImportData:
 			cl.import_data(path)
 
 
-class TestMakeChurnColumn:
+class TestAddChurnColumnToDf:
 	"""
-	A class to test for the `cl.make_target_column` function
+	A class to test for the `cl.add_churn_column_to_df` function
 	"""
 
 	@pytest.fixture
@@ -51,7 +51,7 @@ class TestMakeChurnColumn:
 			"Churn": [0, 1]
 		})
 
-		df = cl.make_churn_column(input_df)
+		df = cl.add_churn_column_to_df(input_df)
 
 		assert "Churn" in df.columns
 		assert np.array_equal(df["Churn"].values, np.array([0, 1]))
@@ -61,7 +61,7 @@ class TestMakeChurnColumn:
 		input_df.drop(columns=["Attrition_Flag"], inplace=True)
 
 		with pytest.raises(ValueError):
-			cl.make_churn_column(input_df)
+			cl.add_churn_column_to_df(input_df)
 
 	def test_column_values_invalid(self, input_df):
 		# Modify input_df
@@ -70,7 +70,7 @@ class TestMakeChurnColumn:
 		)
 
 		with pytest.raises(ValueError):
-			cl.make_churn_column(input_df)
+			cl.add_churn_column_to_df(input_df)
 
 
 class TestPerformEda:

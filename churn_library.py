@@ -90,7 +90,7 @@ def import_data(pth):
         raise e
 
 
-def make_churn_column(df):
+def add_churn_column_to_df(df):
     """
     Create `Churn` column based on values of `Attrition_Flag` field
 
@@ -382,7 +382,7 @@ def train_models(X_train, X_test, y_train, y_test):
 if __name__ == "__main__":
     df = import_data("./data/bank_data.csv")
 
-    df = make_churn_column(df)
+    df = add_churn_column_to_df(df)
 
     perform_eda(df)
 
