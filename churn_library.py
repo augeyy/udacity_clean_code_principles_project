@@ -155,7 +155,7 @@ def perform_eda(df, dst_pth: str = "."):
 def encoder_helper(df, category_lst, response):
     """
     Encode categorical column into a new column with proportion
-    of churn for each category
+    of dependant variable for each category
 
     Parameters
     ----------
@@ -173,7 +173,25 @@ def encoder_helper(df, category_lst, response):
     df : pd.DataFrame
         DataFrame with new columns for
     """
-    pass
+    df = df.copy()
+    try:
+        assert response in df.columns
+    except AssertionError:
+        logging.error(f"ERROR: df does not contain `{response}` column")
+        raise ValueError()
+    try:
+        assert set(category_lst) <= set(df.columns)
+    except:
+        missing_cols = list(set(category_lst) - set(df.columns))
+        logging.error(f"ERROR: df does not contain {missing_cols} column(s)")
+        raise ValueError()
+
+    for category in category_lst:
+        prop_dict = df.groupby(category)[response].mean().to_dict()
+        df[category + '_' + response] = df[category].map(prop_dict)
+        logging.info(f"SUCCESS: encoded `{category}` column!")
+    
+    return df
 
 
 def perform_feature_engineering(df, response):

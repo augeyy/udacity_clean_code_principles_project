@@ -85,8 +85,7 @@ class TestPerformEda:
 			"Customer_Age": [30, 31, 50],
 			"Marital_Status": ["Single", "Married", "Married"],
 			"Total_Trans_Ct": [50, 50, 70]
-		}
-		)
+		})
 
 	def test_success_images_folder_already_exists(self, input_df, tmp_path):
 		pth = tmp_path
@@ -103,10 +102,59 @@ class TestPerformEda:
 		assert len([f for f in (pth / 'images').iterdir()]) == 5
 
 
-# def test_encoder_helper(encoder_helper):
-# 	'''
-# 	test encoder helper
-# 	'''
+class TestEncoderHelper:
+	"""
+	A class to test for the `cl.encoder_helper` function
+	"""
+
+	@pytest.fixture
+	def input_df(self):
+		return pd.DataFrame(data={
+			"Churn": \
+				[1, 1, 1, 0, 0, 0],
+			"Customer_Age": \
+				[30, 31, 40, 29, 30, 50],
+			"Gender": \
+				["M", "M", "M", "M", "F", "F"],
+			"Marital_Status": \
+				["Single", "Divorced", "Divorced", "Married", "Married", "Single"]
+		})
+
+	def test_success(self, input_df):
+
+		new_df = cl.encoder_helper(
+			input_df,
+			["Gender", "Marital_Status"],
+			"Churn"
+		)
+
+		assert len(new_df.columns) == 6
+		pd.testing.assert_series_equal(
+			new_df["Gender_Churn"],
+			pd.Series([0.75, 0.75, 0.75, 0.75, 0, 0], name="Gender_Churn")
+		)
+		pd.testing.assert_series_equal(
+			new_df["Marital_Status_Churn"],
+			pd.Series([0.5, 1, 1, 0, 0, 0.5], name="Marital_Status_Churn")
+		)
+
+	def test_missing_response_column(self, input_df):
+
+		with pytest.raises(ValueError):
+			new_df = cl.encoder_helper(
+				input_df,
+				["Gender", "Marital_Status"],
+				"This_Col_Does_Not_Exist"
+			)
+
+	def test_missing_to_be_encoded_column(self, input_df):
+
+		with pytest.raises(ValueError):
+			new_df = cl.encoder_helper(
+				input_df,
+				["Gender", "This_Col_Does_Not_Exist"],
+				"Churn"
+			)
 
 
 # def test_perform_feature_engineering(perform_feature_engineering):
