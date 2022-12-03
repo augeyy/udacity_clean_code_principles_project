@@ -152,16 +152,16 @@ def perform_eda(df, dst_pth: str = "."):
         assert set(cols_for_eda) <= (set(df.columns))
     except AssertionError:
         logging.error(
-            "ERROR: df does not contain all expected columns {cols_for_eda}"
+            f"ERROR: df does not contain all expected columns {cols_for_eda}"
         )
         raise ValueError()
 
     images_pth = os.path.join(dst_pth, "images")
     if not os.path.exists(images_pth):
         os.makedirs(images_pth)
-        logging.info("SUCCESS: using new directory @{images_pth}")
+        logging.info(f"SUCCESS: using new directory @{images_pth}")
     else:
-        logging.info("SUCCESS: using existing directory @{images_pth}")
+        logging.info(f"SUCCESS: using existing directory @{images_pth}")
     
     # Plot `Churn` histogram
     plt.figure(figsize=(20,10)) 
@@ -190,7 +190,7 @@ def perform_eda(df, dst_pth: str = "."):
     sns.histplot(df["Total_Trans_Ct"], stat="density", kde=True)
     fig_fpath = os.path.join(images_pth, "total_trans_ct_distri.png")
     plt.savefig(fig_fpath)
-    logging.info("SUCCESS: saved `Total_Trans_Ct` distribution @{fig_fpath}")
+    logging.info(f"SUCCESS: saved `Total_Trans_Ct` distribution @{fig_fpath}")
 
     # Plot correlation
     plt.figure(figsize=(20,10)) 
@@ -377,3 +377,13 @@ def train_models(X_train, X_test, y_train, y_test):
     None
     """
     pass
+
+
+if __name__ == "__main__":
+    df = import_data("./data/bank_data.csv")
+
+    df = make_churn_column(df)
+
+    perform_eda(df)
+
+    df = perform_feature_engineering(df, "Churn")
