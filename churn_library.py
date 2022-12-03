@@ -95,15 +95,16 @@ def perform_eda(df, dst_pth: str = "."):
     -------
     None
     """
-    # Check that DataFrame contain expected columns
+    # Check that DataFrame contains expected columns
     try:
         cols_for_eda = \
             ["Churn", "Customer_Age", "Marital_Status", "Total_Trans_Ct"]
-        assert set(cols_for_eda).issubset(set(df.columns))
-    except ValueError:
+        assert set(cols_for_eda) <= (set(df.columns))
+    except AssertionError:
         logging.error(
             "ERROR: df does not contain all expected columns {cols_for_eda}"
         )
+        raise ValueError()
 
     images_pth = os.path.join(dst_pth, "images")
     if not os.path.exists(images_pth):

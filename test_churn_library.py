@@ -91,15 +91,24 @@ class TestPerformEda:
 		pth = tmp_path
 
 		cl.perform_eda(input_df, str(pth))
-		assert len([f for f in (pth / 'images').iterdir()]) == 5
+		assert len([f for f in (pth / "images").iterdir()]) == 5
 
 	def test_success_images_folder_not_exists(self, input_df, tmp_path):
 		pth = tmp_path
 
-		os.makedirs(os.path.join(pth, 'images'))
+		os.makedirs(os.path.join(pth, "images"))
 
 		cl.perform_eda(input_df, str(pth))
-		assert len([f for f in (pth / 'images').iterdir()]) == 5
+		assert len([f for f in (pth / "images").iterdir()]) == 5
+
+	def test_missing_col_in_df(self, input_df, tmp_path):
+		pth = tmp_path
+
+		# Drop one of expected column
+		input_df.drop(columns=["Customer_Age"], inplace=True)
+
+		with pytest.raises(ValueError):
+			cl.perform_eda(input_df, str(pth))
 
 
 class TestEncoderHelper:
