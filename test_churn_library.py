@@ -166,6 +166,82 @@ class TestEncoderHelper:
 			)
 
 
+class TestFeatureEngineering:
+
+	@pytest.fixture
+	def input_df(self):
+		return pd.DataFrame(data={
+			"Churn": \
+				[1, 1, 1, 0, 0, 0],
+			"Customer_Age": \
+				[30, 31, 40, 29, 30, 50],
+			"Gender": \
+				["M", "M", "M", "M", "F", "F"],
+			"Marital_Status": \
+				["Single", "Divorced", "Divorced", "Married", "Married", "Single"]
+		})
+	
+	# Mock `cl.encoder_helper`
+	@pytest.fixture(autouse=True)
+	def patch_encoder_helper(self, monkeypatch, input_df):
+		def mock_encoder_helper(*args, **kwargs):
+			encode_df = pd.DataFrame(
+				data={
+					"Gender_Churn": [0.75, 0.75, 0.75, 0.75, 0, 0],
+					"Marital_Status_Churn": [0.5, 1, 1, 0, 0, 0.5]
+				}
+			)
+			return pd.concat(
+				[input_df, encode_df],
+				axis=1
+			)
+
+		monkeypatch.setattr(cl, "encoder_helper", mock_encoder_helper)
+
+	# Mock `cl.FEATURE_LIST` global variable
+	@pytest.fixture(autouse=True)
+	def patch_feature_list(self, monkeypatch):
+		monkeypatch.setattr(
+			cl,
+			"FEATURE_LIST",
+			["Customer_Age", "Gender_Churn", "Marital_Status_Churn"]
+		)
+
+	@pytest.mark.usefixtures('patch_feature_list')
+	def test_success(self, input_df):
+		X_train, X_test, y_train, y_test = \
+			cl.perform_feature_engineering(
+				input_df,
+				"Churn"
+			)
+
+		assert X_train.shape == (4, 3)
+		assert y_train.shape == (4,)
+		assert X_test.shape == (2, 3)
+		assert y_test.shape == (2,)
+
+	@pytest.mark.usefixtures('patch_feature_list')
+	def test_missing_response_column(self, input_df):
+		with pytest.raises(ValueError):
+			cl.perform_feature_engineering(
+				input_df,
+				"This_Col_Does_Not_Exist"
+			)
+
+	def test_missing_expected_feature_column(self, input_df, monkeypatch):
+
+		monkeypatch.setattr(
+			cl,
+			"FEATURE_LIST",
+			["Customer_Age", "Gender_Churn", "This_Col_Does_Not_Exist"]
+		)
+
+		with pytest.raises(ValueError):
+			cl.perform_feature_engineering(
+				input_df,
+				"Churn"
+			)
+
 # def test_perform_feature_engineering(perform_feature_engineering):
 # 	'''
 # 	test perform_feature_engineering
