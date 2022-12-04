@@ -5,6 +5,8 @@ import pytest
 
 import numpy as np
 import pandas as pd
+from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier
 
 import churn_library as cl
 
@@ -345,6 +347,47 @@ class TestFeatureImportancePlot:
 	"""
 	A class to test for the `cl.feature_importance_plot` function
 	"""
+
+	@pytest.fixture
+	def X_y_train(self):
+		X_train = pd.DataFrame(data={
+			"Feature1": [1, 2, 3, 4, 5],
+			"Feature2": [0, 0, 1, 1, 1]
+		})
+		y_train = pd.Series([0, 0, 0, 1, 1])
+		return X_train, y_train
+	
+	@pytest.fixture
+	def X_data(self):
+		X_data = pd.DataFrame(data={
+			"Feature1": [1, 3],
+			"Feature2": [0, 1]
+		})
+		return X_data
+
+	def test_success(self, tmp_path, X_y_train, X_data):
+		# Train a simple RF model to be used as mock
+		X_train, y_train = X_y_train
+		model = RandomForestClassifier().fit(X_train, y_train)
+
+
+		dst_path = str(tmp_path / "results")  # `results` folder does not exist yet
+
+		cl.feature_importance_plot(model, X_data, dst_path)
+
+		# Make sure that two plots have been made
+		assert len([f for f in (tmp_path / "results").iterdir()]) == 2
+	
+	def test_model_has_no_feat_importances_attr(self, tmp_path, X_y_train, X_data):
+		# Train a simple LR model to be used as mock
+		# LR model has no `feature_importances_` attributes
+		X_train, y_train = X_y_train
+		model = LogisticRegression().fit(X_train, y_train)
+
+		dst_path = str(tmp_path / "results")  # `results` folder does not exist yet
+
+		with pytest.raises(ValueError):
+			cl.feature_importance_plot(model, X_data, dst_path)
 
 
 

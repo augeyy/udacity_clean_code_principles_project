@@ -5,11 +5,13 @@
 import os
 os.environ["QT_QPA_PLATFORM"]="offscreen"
 
+import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import plot_roc_curve, classification_report
 import matplotlib.pyplot as plt
 import seaborn as sns
+import shap
 
 import logging
 logging.basicConfig(
@@ -396,7 +398,7 @@ def classification_report_image(
     return
 
 
-def feature_importance_plot(model, X_data, output_pth):
+def feature_importance_plot(model, X_data, dst_pth: str = "."):
     """
     Creates and stores the feature importances in pth
 
@@ -408,14 +410,67 @@ def feature_importance_plot(model, X_data, output_pth):
     X_data : pd.DataFrame
         DataFrame of X values
 
-    output_pth : str
+    dst_pth : str, default="."
         Path to store the figure
 
     Returns
     -------
         None
     """
-    pass
+    # Check that model has the attribute `feature_importances_`
+    try:
+        assert hasattr(model, "feature_importances_")
+    except AssertionError:
+        logging.error(
+            "ERROR: `model` does not have the attribute `feature importances`"
+        )
+        raise ValueError()
+
+    if not os.path.exists(dst_pth):
+        os.makedirs(dst_pth)
+        logging.info(f"SUCCESS: creating directory @{dst_pth}")
+
+    ##################
+    # Plot SHAP values
+    ##################
+    explainer = shap.TreeExplainer(model)
+    shap_values = explainer.shap_values(X_data)
+    shap.summary_plot(shap_values, X_data, plot_type="bar", show=False)
+    shap_fpath = os.path.join(dst_pth, "shap_values.png")
+    plt.savefig(shap_fpath)
+    logging.info(f"SUCCESS: saved shap values plot @{shap_fpath}")
+
+    #########################
+    # Plot feature importance
+    #########################
+    # Calculate feature importances
+    importances = model.feature_importances_
+    # Sort feature importances in descending order
+    indices = np.argsort(importances)[::-1]
+
+    # Rearrange feature names so they match the sorted feature importances
+    names = [X_data.columns[i] for i in indices]
+
+    # Create plot
+    plt.figure(figsize=(20,5))
+
+    # Create plot title
+    plt.title("Feature Importance")
+    plt.ylabel('Importance')
+
+    # Add bars
+    plt.bar(range(X_data.shape[1]), importances[indices])
+
+    # Add feature names as x-axis labels
+    plt.xticks(range(X_data.shape[1]), names, rotation=90)
+
+    feat_imp_fpath = os.path.join(dst_pth, "feature_importances.png")
+    plt.savefig(feat_imp_fpath)
+    logging.info(f"SUCCESS: saved feature importances plot @{feat_imp_fpath}")
+
+    return
+
+
 
 def train_models(X_train, X_test, y_train, y_test):
     """
