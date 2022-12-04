@@ -242,7 +242,106 @@ class TestFeatureEngineering:
 				"Churn"
 			)
 
-# def test_perform_feature_engineering(perform_feature_engineering):
+
+class TestClassificationReportImage:
+
+	@pytest.fixture
+	def input_arrs(self):
+		y_train = np.array([0, 0, 0, 1, 1])
+		y_test = np.array([0, 1, 0])
+		y_train_preds_lr = np.array([0, 0, 1, 0, 1])
+		y_train_preds_rf = np.array([1, 0, 0, 1, 1])
+		y_test_preds_lr = np.array([0, 0, 1])
+		y_test_preds_rf = np.array([0, 1, 0])
+		return (
+			y_train, y_test,
+			y_train_preds_lr, y_train_preds_rf,
+			y_test_preds_lr, y_test_preds_rf
+		)
+
+
+	def test_success_images_folder_not_exists(self, input_arrs, tmp_path):
+
+		(y_train, y_test,
+		y_train_preds_lr, y_train_preds_rf,
+		y_test_preds_lr, y_test_preds_rf) = \
+			input_arrs
+
+		cl.classification_report_image(
+			y_train,
+			y_test,
+			y_train_preds_lr,
+			y_train_preds_rf,
+			y_test_preds_lr,
+			y_test_preds_rf,
+			str(tmp_path)
+		)
+		assert len([f for f in (tmp_path / "images").iterdir()]) == 4
+
+	def test_success_images_folder_already_exists(self, input_arrs, tmp_path):
+
+		(tmp_path / "images").mkdir(parents=True)
+
+		(y_train, y_test,
+		y_train_preds_lr, y_train_preds_rf,
+		y_test_preds_lr, y_test_preds_rf) = \
+			input_arrs
+
+		cl.classification_report_image(
+			y_train,
+			y_test,
+			y_train_preds_lr,
+			y_train_preds_rf,
+			y_test_preds_lr,
+			y_test_preds_rf,
+			str(tmp_path)
+		)
+		assert len([f for f in (tmp_path / "images").iterdir()]) == 4
+
+	def test_input_arr_not_1d(self, input_arrs, tmp_path):
+
+		(y_train, y_test,
+		y_train_preds_lr, y_train_preds_rf,
+		y_test_preds_lr, y_test_preds_rf) = \
+			input_arrs
+		
+		# Change dimension of one of the input array to cause error
+		y_test_preds_lr = np.array([[0, 0, 0], [1, 1, 1]])
+
+		with pytest.raises(ValueError):
+			cl.classification_report_image(
+				y_train,
+				y_test,
+				y_train_preds_lr,
+				y_train_preds_rf,
+				y_test_preds_lr,
+				y_test_preds_rf,
+				str(tmp_path)
+			)
+
+	def test_input_arr_not_same_shape_as_other_arr(self, input_arrs, tmp_path):
+
+		(y_train, y_test,
+		y_train_preds_lr, y_train_preds_rf,
+		y_test_preds_lr, y_test_preds_rf) = \
+			input_arrs
+		
+		# Change shape of one of the input array to cause error
+		y_test_preds_lr = np.array([0, 0, 0, 1, 1, 1])
+
+		with pytest.raises(ValueError):
+			cl.classification_report_image(
+				y_train,
+				y_test,
+				y_train_preds_lr,
+				y_train_preds_rf,
+				y_test_preds_lr,
+				y_test_preds_rf,
+				str(tmp_path)
+			)
+
+
+# def test_feature_importance_plot(perform_feature_engineering):
 # 	'''
 # 	test perform_feature_engineering
 # 	'''

@@ -7,6 +7,7 @@ os.environ["QT_QPA_PLATFORM"]="offscreen"
 
 import pandas as pd
 from sklearn.model_selection import train_test_split
+from sklearn.metrics import plot_roc_curve, classification_report
 import matplotlib.pyplot as plt
 import seaborn as sns
 
@@ -304,7 +305,7 @@ def perform_feature_engineering(df, response):
     return X_train, X_test, y_train, y_test
 
 
-def make_classification_report_image(
+def classification_report_image(
     y_train,
     y_test,
     y_train_preds_lr,
@@ -339,7 +340,64 @@ def make_classification_report_image(
     -------
     None
     """
-    pass
+    # Check shape of arrays
+    try:
+        assert (
+            y_train.ndim == y_train_preds_lr.ndim == y_train_preds_rf.ndim \
+            == y_test.ndim == y_test_preds_lr.ndim == y_test_preds_rf.ndim \
+            == 1
+        )
+    except AssertionError:
+        logging.error(f"ERROR: arrs must be 1D")
+        raise ValueError()
+
+    try:
+        assert (
+            y_train.shape == y_train_preds_lr.shape == y_train_preds_rf.shape
+        )
+        assert (
+            y_test.shape == y_test_preds_lr.shape == y_test_preds_rf.shape
+        )
+    except AssertionError:
+        logging.error(f"ERROR: train arrs and test arrs must have same shape")
+        raise ValueError()
+
+    images_pth = os.path.join(dst_pth, "images")
+    if not os.path.exists(images_pth):
+        os.makedirs(images_pth)
+        logging.info(f"SUCCESS: using new directory @{images_pth}")
+    else:
+        logging.info(f"SUCCESS: using existing directory @{images_pth}")
+
+    fpath = os.path.join(images_pth, "lr_results_train.txt")
+    with open(fpath, "w") as wf:
+        logging.info(
+            f"SUCCESS: wrote LR train classfication results@{fpath}"
+        )
+        wf.write(classification_report(y_train, y_train_preds_lr))
+
+    fpath = os.path.join(images_pth, "lr_results_test.txt")
+    with open(fpath, "w") as wf:
+        logging.info(
+            f"SUCCESS: wrote LR test classfication results@{fpath}"
+        )
+        wf.write(classification_report(y_test, y_test_preds_lr))
+
+    fpath = os.path.join(images_pth, "rf_results_train.txt")
+    with open(fpath, "w") as wf:
+        logging.info(
+            f"SUCCESS: wrote RF train classfication results@{fpath}"
+        )
+        wf.write(classification_report(y_train, y_train_preds_rf))
+
+    fpath = os.path.join(images_pth, "rf_results_test.txt")
+    with open(fpath, "w") as wf:
+        logging.info(
+            f"SUCCESS: wrote RF test classfication results@{fpath}"
+        )
+        wf.write(classification_report(y_test, y_test_preds_rf))
+
+    return
 
 
 def feature_importance_plot(model, X_data, output_pth):
