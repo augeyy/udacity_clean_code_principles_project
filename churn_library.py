@@ -22,7 +22,7 @@ logging.basicConfig(
     filename="./logs/churn_library.log",
     level = logging.INFO,
     filemode="w",
-    format="%(name)s - %(levelname)s - %(message)s")
+    format="[%(filename)s:%(lineno)s - %(funcName)30s()] - %(levelname)s - %(message)s")
 
 
 # Columns to keep training model features engineering
@@ -572,7 +572,7 @@ def train_models(
     lrc_plot.plot(ax=ax, alpha=0.8)
     fpath = os.path.join(images_dst_pth, "roc_curves.png")
     plt.savefig(fpath)
-    logging.info(f"SUCCESS:  made ROC curves @{fpath}")
+    logging.info(f"SUCCESS: made ROC curves @{fpath}")
 
     # Model results
     logging.info("SUCCESS: making classification results...")
