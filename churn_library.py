@@ -137,7 +137,7 @@ def perform_eda(df, dst_pth: str = "."):
     ----------
     df : pd.DataFrame
         DataFrame on which to perform EDA
-    folder_pth : str, default="."
+    dst_pth : str, default="."
         Folder where to save figures.
         `images` folder will be created in `folder_pth`
 
@@ -304,12 +304,15 @@ def perform_feature_engineering(df, response):
     return X_train, X_test, y_train, y_test
 
 
-def classification_report_image(y_train,
-                                y_test,
-                                y_train_preds_lr,
-                                y_train_preds_rf,
-                                y_test_preds_lr,
-                                y_test_preds_rf):
+def make_classification_report_image(
+    y_train,
+    y_test,
+    y_train_preds_lr,
+    y_train_preds_rf,
+    y_test_preds_lr,
+    y_test_preds_rf,
+    dst_pth: str = "."
+):
     """
     Produces classification report for training and testing results
     and stores report as image in `images` folder
@@ -328,6 +331,9 @@ def classification_report_image(y_train,
         Test predictions from logistic regression
     y_test_preds_rf : ndarray
         Test predictions from random forest
+    folder_pth : str, default="."
+        Folder where to save figures.
+        `images` folder will be created in `folder_pth`
 
     Returns
     -------
