@@ -367,34 +367,44 @@ def classification_report_image(
     else:
         logging.info(f"SUCCESS: using existing directory @{images_pth}")
 
-    fpath = os.path.join(images_pth, "lr_results_train.txt")
-    with open(fpath, "w") as wf:
-        logging.info(
-            f"SUCCESS: wrote LR train classfication results@{fpath}"
-        )
-        wf.write(classification_report(y_train, y_train_preds_lr))
+    preds_dict = {
+        "lr": {
+            "train": y_train_preds_lr,
+            "test": y_test_preds_lr
+        },
+        "rf": {
+            "train": y_train_preds_rf,
+            "test": y_test_preds_rf
+        }
+    }
+    for model_name in preds_dict.keys():
+        y_train_preds = preds_dict[model_name]["train"]
+        y_test_preds = preds_dict[model_name]["test"]
 
-    fpath = os.path.join(images_pth, "lr_results_test.txt")
-    with open(fpath, "w") as wf:
-        logging.info(
-            f"SUCCESS: wrote LR test classfication results@{fpath}"
+        fpath = os.path.join(images_pth, f"{model_name}_results_train.png")
+        plt.rc('figure', figsize=(5, 5))
+        plt.text(
+            0.01, 1.25, str('Random Forest Train'),
+            {'fontsize': 10}, fontproperties = 'monospace'
         )
-        wf.write(classification_report(y_test, y_test_preds_lr))
-
-    fpath = os.path.join(images_pth, "rf_results_train.txt")
-    with open(fpath, "w") as wf:
-        logging.info(
-            f"SUCCESS: wrote RF train classfication results@{fpath}"
+        plt.text(
+            0.01, 0.05, str(classification_report(y_test, y_test_preds)),
+            {'fontsize': 10}, fontproperties = 'monospace'
         )
-        wf.write(classification_report(y_train, y_train_preds_rf))
-
-    fpath = os.path.join(images_pth, "rf_results_test.txt")
-    with open(fpath, "w") as wf:
-        logging.info(
-            f"SUCCESS: wrote RF test classfication results@{fpath}"
+        plt.text(
+            0.01, 0.6, str('Random Forest Test'),
+            {'fontsize': 10}, fontproperties = 'monospace'
         )
-        wf.write(classification_report(y_test, y_test_preds_rf))
+        plt.text(
+            0.01, 0.7, str(classification_report(y_train, y_train_preds)),
+            {'fontsize': 10}, fontproperties = 'monospace'
+        )
+        plt.axis('off')
+        plt.savefig(fpath)
 
+        logging.info(
+            f"SUCCESS: wrote {model_name} classfication results @{fpath}"
+        )
     return
 
 

@@ -278,7 +278,7 @@ class TestClassificationReportImage:
 			y_test_preds_rf,
 			str(tmp_path)
 		)
-		assert len([f for f in (tmp_path / "images").iterdir()]) == 4
+		assert len([f for f in (tmp_path / "images").iterdir()]) == 2
 
 	def test_success_images_folder_already_exists(self, input_arrs, tmp_path):
 
@@ -298,7 +298,7 @@ class TestClassificationReportImage:
 			y_test_preds_rf,
 			str(tmp_path)
 		)
-		assert len([f for f in (tmp_path / "images").iterdir()]) == 4
+		assert len([f for f in (tmp_path / "images").iterdir()]) == 2
 
 	def test_input_arr_not_1d(self, input_arrs, tmp_path):
 
