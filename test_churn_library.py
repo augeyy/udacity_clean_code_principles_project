@@ -215,10 +215,10 @@ class TestFeatureEngineering:
 				"Churn"
 			)
 
-		assert X_train.shape == (4, 3)
-		assert y_train.shape == (4,)
-		assert X_test.shape == (2, 3)
-		assert y_test.shape == (2,)
+		assert isinstance(X_train, pd.DataFrame) and X_train.shape == (4, 3)
+		assert isinstance(y_train, pd.Series) and y_train.shape == (4,)
+		assert isinstance(X_test, pd.DataFrame) and X_test.shape == (2, 3)
+		assert isinstance(y_test, pd.Series) and y_test.shape == (2,)
 
 	@pytest.mark.usefixtures('patch_feature_list')
 	def test_missing_response_column(self, input_df):
@@ -341,10 +341,11 @@ class TestClassificationReportImage:
 			)
 
 
-# def test_feature_importance_plot(perform_feature_engineering):
-# 	'''
-# 	test perform_feature_engineering
-# 	'''
+class TestFeatureImportancePlot:
+	"""
+	A class to test for the `cl.feature_importance_plot` function
+	"""
+
 
 
 # def test_train_models(train_models):

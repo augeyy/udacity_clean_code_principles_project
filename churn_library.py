@@ -258,14 +258,10 @@ def perform_feature_engineering(df, response):
 
     Returns
     -------
-    X_train : ndarray
-        X training data
-    X_test : ndarray
-        X testing data
-    y_train : ndarray
-        y training data
-    y_test : ndarray
-        y testing data
+    X_train, X_test : pd.DataFrame
+        X train and test data
+    y_train, y_test : pd.Series
+        y test and test data
     """
     df = df.copy()
     try:
