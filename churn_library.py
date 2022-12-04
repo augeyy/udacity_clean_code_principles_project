@@ -4,11 +4,15 @@
 # import libraries
 import os
 os.environ["QT_QPA_PLATFORM"]="offscreen"
+from joblib import dump
 
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import plot_roc_curve, classification_report
+from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import GridSearchCV
 import matplotlib.pyplot as plt
 import seaborn as sns
 import shap
@@ -482,26 +486,107 @@ def feature_importance_plot(model, X_data, dst_pth: str = "."):
 
 
 
-def train_models(X_train, X_test, y_train, y_test):
+def train_models(
+        X_train,
+        X_test,
+        y_train,
+        y_test,
+        models_dst_pth: str = "./models",
+        images_dst_pth: str = "./images",
+    ):
     """
     Train, store model results: images + scores, and store models
 
     Parameters
     ----------
-    X_train : ndarray
-        X training data
-    X_test : ndarray
-        X testing data
-    y_train : ndarray
-        y training data
-    y_test : ndarray
-        y testing data
+    X_train, X_test : pd.DataFrame
+        X train and test data
+    y_train, y_test : pd.Series
+        y train and test data
+    models_dst_pth: str, default="./models"
+        Folder where to model artifacts
+    images_dst_pth: str, default="./images"
+        Folder where to save ROC curves plot
 
     Returns
-    ----------
+    -------
     None
     """
-    pass
+    if not os.path.exists(models_dst_pth):
+        os.makedirs(models_dst_pth, exist_ok=True)
+        logging.info(f"SUCCESS: created new directory @{models_dst_pth}")
+
+    if not os.path.exists(images_dst_pth):
+        os.makedirs(images_dst_pth, exist_ok=True)
+        logging.info(f"SUCCESS: created new directory @{images_dst_pth}")
+
+    # Grid Search
+    rfc = RandomForestClassifier(random_state=42)
+    # Use a different solver if the default 'lbfgs' fails to converge
+    # Reference: https://scikit-learn.org/stable/modules/linear_model.html#logistic-regression
+    lrc = LogisticRegression(solver='lbfgs', max_iter=3000)
+
+    param_grid = { 
+        'n_estimators': [200, 500],
+        'max_features': ['auto', 'sqrt'],
+        'max_depth' : [4,5,100],
+        'criterion' :['gini', 'entropy']
+    }
+
+    #######
+    # Train
+    #######
+    logging.info("SUCCESS: training lr and rf models...")
+    cv_rfc = GridSearchCV(estimator=rfc, param_grid=param_grid, cv=5)
+    cv_rfc.fit(X_train, y_train)
+    rfc = cv_rfc.best_estimator_
+    logging.info("SUCCESS: finished training RF models via Grid Search!")
+
+    lrc.fit(X_train, y_train)
+    logging.info("SUCCESS: finished training Logistic Regression model!")
+
+    # Save models
+    model_dict = {"logistic": lrc, "rfc": rfc}
+    for name, model in model_dict.items():
+        fpath = os.path.join(models_dst_pth, f"{name}_clf.pkl")
+        dump(model, fpath)
+        logging.info(f"SUCCESS: saved {name} model artifact @{fpath}")
+
+    #######
+    # Eval
+    #######
+    logging.info("SUCCESS: making predictions...")
+    y_train_preds_rf = rfc.predict(X_train)
+    y_test_preds_rf = rfc.predict(X_test)
+
+    y_train_preds_lr = lrc.predict(X_train)
+    y_test_preds_lr = lrc.predict(X_test)
+    logging.info("SUCCESS: finished making predictions!")
+
+    # Save ROC curves
+    logging.info("SUCCESS: making ROC curves...")
+    lrc_plot = plot_roc_curve(lrc, X_test, y_test)
+    plt.figure(figsize=(15, 8))
+    ax = plt.gca()
+    rfc_disp = plot_roc_curve(rfc, X_test, y_test, ax=ax, alpha=0.8)
+    lrc_plot.plot(ax=ax, alpha=0.8)
+    fpath = os.path.join(images_dst_pth, "roc_curves.png")
+    plt.savefig(fpath)
+    logging.info(f"SUCCESS:  made ROC curves @{fpath}")
+
+    # Model results
+    logging.info("SUCCESS: making classification results...")
+    classification_report_image(
+        y_train, y_test,
+        y_train_preds_lr, y_train_preds_rf,
+        y_test_preds_lr, y_test_preds_rf
+    )
+
+    # Shap + Feature importances
+    logging.info("SUCCESS: making feature importances plots...")
+    feature_importance_plot(cv_rfc.best_estimator_, X_test, images_dst_pth)
+
+    return
 
 
 if __name__ == "__main__":
@@ -511,4 +596,9 @@ if __name__ == "__main__":
 
     perform_eda(df)
 
-    df = perform_feature_engineering(df, "Churn")
+    X_train, X_test, y_train, y_test = perform_feature_engineering(df, "Churn")
+
+    train_models(
+        X_train, X_test, y_train, y_test,
+        models_dst_pth="./models", images_dst_pth="./images"
+    )

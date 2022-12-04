@@ -1,5 +1,7 @@
 import os
 import logging
+from joblib import load
+from unittest.mock import Mock
 
 import pytest
 
@@ -390,20 +392,66 @@ class TestFeatureImportancePlot:
 			cl.feature_importance_plot(model, X_data, dst_path)
 
 
+class TestTrainModels:
 
-# def test_train_models(train_models):
-# 	'''
-# 	test train_models
-# 	'''
+	@pytest.fixture
+	def X_y_train_test(self):
+		X_train = pd.DataFrame(data={
+			"Feature1": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+			"Feature2": [0, 0, 1, 1, 1, 0, 0, 0, 1, 1]
+		})
+		y_train = pd.Series([0, 0, 0, 1, 1, 0, 0, 0, 1, 1])
 
+		X_test = pd.DataFrame(data={
+			"Feature1": [1, 2, 3],
+			"Feature2": [0, 0, 1]
+		})
+		y_test = pd.Series([0, 0, 0])
+		return X_train, X_test, y_train, y_test
 
-# if __name__ == "__main__":
-# 	pass
+	def test_success(self, tmp_path, monkeypatch, X_y_train_test):
+		# Mock functions called inside `train_models`
+		classification_report_image_mock = Mock()
+		feature_importance_plot_mock = Mock()
 
+		monkeypatch.setattr(
+			cl,
+			"classification_report_image",
+			classification_report_image_mock
+		)
 
+		monkeypatch.setattr(
+			cl,
+			"feature_importance_plot",
+			feature_importance_plot_mock
+		)
 
+		models_dst_pth = tmp_path / "models"
+		images_dst_pth = tmp_path / "images"
 
+		X_train, X_test, y_train, y_test = \
+			X_y_train_test
 
+		cl.train_models(
+			X_train, X_test,
+			y_train, y_test,
+			str(models_dst_pth), str(images_dst_pth)
+		)
 
+		# Make sure two model artifacts were saved
+		assert len([f for f in (tmp_path / "models").iterdir()]) == 2
+		try:
+			_ = load(tmp_path / "models" / "logistic_clf.pkl")
+		except Exception:
+			raise ValueError("ERROR: unabled to load lr artifact")
+		try:
+			_ = load(tmp_path / "models" / "rfc_clf.pkl")
+		except Exception:
+			raise ValueError("ERROR: unabled to load rf artifact")
 
+		# Make sure ROC curves were saved
+		assert len([f for f in (tmp_path / "images").iterdir()]) == 1
 
+		# Make sure that other functions were called
+		feature_importance_plot_mock.assert_called()
+		classification_report_image_mock.assert_called()
