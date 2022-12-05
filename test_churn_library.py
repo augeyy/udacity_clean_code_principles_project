@@ -1,3 +1,10 @@
+"""
+File containing tests for the `churn_library` module
+
+Author: Yohann A.
+Date: Dec. 2022
+"""
+
 import os
 import logging
 from joblib import load

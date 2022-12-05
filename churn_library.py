@@ -1,7 +1,11 @@
-# library doc string
+"""
+A module to perform data science steps for predicting customer churn based on
+the final project of the first course "Clean Code Principles" which is part 
+of the Machine Learning DevOps Engineer Nanodegree
 
-
-# import libraries
+Author: Yohann A.
+Date: Dec. 2022
+"""
 import os
 os.environ["QT_QPA_PLATFORM"]="offscreen"
 from joblib import dump
