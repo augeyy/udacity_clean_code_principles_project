@@ -14,9 +14,7 @@ import churn_library as cl
 
 
 class TestImportData:
-	"""
-	A class to test for the `cl.import_data` function
-	"""
+	"""A class to test for the `cl.import_data` function"""
 
 	@pytest.fixture
 	def path(self):
@@ -39,9 +37,7 @@ class TestImportData:
 
 
 class TestAddChurnColumnToDf:
-	"""
-	A class to test for the `cl.add_churn_column_to_df` function
-	"""
+	"""A class to test for the `cl.add_churn_column_to_df` function"""
 
 	@pytest.fixture
 	def input_df(self):
@@ -78,9 +74,7 @@ class TestAddChurnColumnToDf:
 
 
 class TestPerformEda:
-	"""
-	A class to test for the `cl.perform_eda` function
-	"""
+	"""A class to test for the `cl.perform_eda` function"""
 
 	@pytest.fixture
 	def input_df(self):
@@ -116,9 +110,7 @@ class TestPerformEda:
 
 
 class TestEncoderHelper:
-	"""
-	A class to test for the `cl.encoder_helper` function
-	"""
+	"""A class to test for the `cl.encoder_helper` function"""
 
 	@pytest.fixture
 	def input_df(self):
@@ -171,6 +163,7 @@ class TestEncoderHelper:
 
 
 class TestFeatureEngineering:
+	"""A class to test for the `cl.perform_feature_engineering` function"""
 
 	@pytest.fixture
 	def input_df(self):
@@ -248,6 +241,7 @@ class TestFeatureEngineering:
 
 
 class TestClassificationReportImage:
+	"""A class to test for the `cl.classification_report_image` function"""
 
 	@pytest.fixture
 	def input_arrs(self):
@@ -346,9 +340,7 @@ class TestClassificationReportImage:
 
 
 class TestFeatureImportancePlot:
-	"""
-	A class to test for the `cl.feature_importance_plot` function
-	"""
+	"""A class to test for the `cl.feature_importance_plot` function"""
 
 	@pytest.fixture
 	def X_y_train(self):
@@ -393,6 +385,7 @@ class TestFeatureImportancePlot:
 
 
 class TestTrainModels:
+	"""A class to test for the `cl.train_models` function"""
 
 	@pytest.fixture
 	def X_y_train_test(self):
