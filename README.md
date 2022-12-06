@@ -22,6 +22,8 @@ Focus is put on writing code following best software engineering practices (modu
 │
 ├── test_churn_library.py  <- File to test the functions contained in `churn_library` module
 │
+├── config.py              <- Configuration file containing global variables
+│
 ├── models                 <- Trained and serialized models
 │
 ├── images                 <- Generated analysis as png, PDF, etc.
