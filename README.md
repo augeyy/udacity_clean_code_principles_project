@@ -3,7 +3,9 @@
 - Project **Predict Customer Churn** of ML DevOps Engineer Nanodegree Udacity
 
 ## Project Description
-Your project description here.
+This is the final project of the first course of the **Udacity Machine Learning DevOps Engineer Nanodegree**.  
+In this project, the goal is to write a data science pipeline code to predict credit card customers that are the most likely to churn.  
+Focus is put on writing code following best software engineering practices (modular, documented and tested code).
 
 ## Files and data description
 
@@ -36,9 +38,8 @@ Your project description here.
 Data used in this project are credit card customers data available on [Kaggle](https://www.kaggle.com/datasets/sakshigoyal7/credit-card-customers/code)
 
 ## Running Files
-How do you run your files? What should happen when you run your files?
 
-### Running the main program
+### Running the main file
 
 Create a Python virtual environment
 ```
