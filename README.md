@@ -6,7 +6,34 @@
 Your project description here.
 
 ## Files and data description
-Overview of the files and data present in the root directory. 
+
+### Project structure
+
+├── README.md              <- The top-level README for developers using this project.
+│
+├── data                   <- Data from third party sources.
+│   └── bank_data.csv      
+│
+├── churn_notebook.ipynb   <- Provided notebook used as the reference to write `churn_library` module
+│
+├── churn_library.py       <- Module to run data science pipeline
+│
+├── test_churn_library.py  <- File to test the functions contained in `churn_library` module
+│
+├── models                 <- Trained and serialized models
+│
+├── images                 <- Generated analysis as png, PDF, etc.
+│
+├── logs                   <- Log files
+│
+├── requirements.txt       <- The requirements file for reproducing the prod environment
+│
+└── requirements_dev.txt   <- The requirements file for reproducing the development environment
+                              eg. tests, linter, etc
+
+### Data description
+
+Data used in this project are credit card customers data available on [Kaggle](https://www.kaggle.com/datasets/sakshigoyal7/credit-card-customers/code)
 
 ## Running Files
 How do you run your files? What should happen when you run your files?
