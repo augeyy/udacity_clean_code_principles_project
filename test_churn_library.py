@@ -1,7 +1,7 @@
 """
 File containing tests for the `churn_library` module
 
-Author: Yohann A.
+Author: Yohann A. <yohann.augey@gmail.com>
 Date: Dec. 2022
 """
 
@@ -92,19 +92,11 @@ class TestPerformEda:
 			"Total_Trans_Ct": [50, 50, 70]
 		})
 
-	def test_success_images_folder_already_exists(self, input_df, tmp_path):
+	def test_success(self, input_df, tmp_path):
 		pth = tmp_path
 
-		cl.perform_eda(input_df, str(pth))
-		assert len([f for f in (pth / "images").iterdir()]) == 5
-
-	def test_success_images_folder_not_exists(self, input_df, tmp_path):
-		pth = tmp_path
-
-		os.makedirs(os.path.join(pth, "images"))
-
-		cl.perform_eda(input_df, str(pth))
-		assert len([f for f in (pth / "images").iterdir()]) == 5
+		cl.perform_eda(input_df, os.path.join(tmp_path, "images"))
+		assert len([f for f in (pth / "images" / "eda").iterdir()]) == 5
 
 	def test_missing_col_in_df(self, input_df, tmp_path):
 		pth = tmp_path
@@ -264,28 +256,7 @@ class TestClassificationReportImage:
 			y_test_preds_lr, y_test_preds_rf
 		)
 
-
-	def test_success_images_folder_not_exists(self, input_arrs, tmp_path):
-
-		(y_train, y_test,
-		y_train_preds_lr, y_train_preds_rf,
-		y_test_preds_lr, y_test_preds_rf) = \
-			input_arrs
-
-		cl.classification_report_image(
-			y_train,
-			y_test,
-			y_train_preds_lr,
-			y_train_preds_rf,
-			y_test_preds_lr,
-			y_test_preds_rf,
-			str(tmp_path)
-		)
-		assert len([f for f in (tmp_path / "images").iterdir()]) == 2
-
-	def test_success_images_folder_already_exists(self, input_arrs, tmp_path):
-
-		(tmp_path / "images").mkdir(parents=True)
+	def test_success(self, input_arrs, tmp_path):
 
 		(y_train, y_test,
 		y_train_preds_lr, y_train_preds_rf,
@@ -299,9 +270,9 @@ class TestClassificationReportImage:
 			y_train_preds_rf,
 			y_test_preds_lr,
 			y_test_preds_rf,
-			str(tmp_path)
+			os.path.join(tmp_path, "images")
 		)
-		assert len([f for f in (tmp_path / "images").iterdir()]) == 2
+		assert len([f for f in (tmp_path / "images" / "results").iterdir()]) == 2
 
 	def test_input_arr_not_1d(self, input_arrs, tmp_path):
 
@@ -371,13 +342,14 @@ class TestFeatureImportancePlot:
 		X_train, y_train = X_y_train
 		model = RandomForestClassifier().fit(X_train, y_train)
 
-
-		dst_path = str(tmp_path / "results")  # `results` folder does not exist yet
-
-		cl.feature_importance_plot(model, X_data, dst_path)
+		cl.feature_importance_plot(
+			model,
+			X_data,
+			os.path.join(tmp_path, "images")
+		)
 
 		# Make sure that two plots have been made
-		assert len([f for f in (tmp_path / "results").iterdir()]) == 2
+		assert len([f for f in (tmp_path / "images" / "results").iterdir()]) == 2
 	
 	def test_model_has_no_feat_importances_attr(self, tmp_path, X_y_train, X_data):
 		# Train a simple LR model to be used as mock
@@ -426,16 +398,14 @@ class TestTrainModels:
 			feature_importance_plot_mock
 		)
 
-		models_dst_pth = tmp_path / "models"
-		images_dst_pth = tmp_path / "images"
-
 		X_train, X_test, y_train, y_test = \
 			X_y_train_test
 
 		cl.train_models(
 			X_train, X_test,
 			y_train, y_test,
-			str(models_dst_pth), str(images_dst_pth)
+			os.path.join(tmp_path, "models"),
+			os.path.join(tmp_path, "images")
 		)
 
 		# Make sure two model artifacts were saved
@@ -450,7 +420,7 @@ class TestTrainModels:
 			raise ValueError("ERROR: unabled to load rf artifact")
 
 		# Make sure ROC curves were saved
-		assert len([f for f in (tmp_path / "images").iterdir()]) == 1
+		assert len([f for f in (tmp_path / "images" / "results").iterdir()]) == 1
 
 		# Make sure that other functions were called
 		feature_importance_plot_mock.assert_called()

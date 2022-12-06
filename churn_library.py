@@ -39,13 +39,13 @@ logging.basicConfig(
 plt.rcParams['figure.constrained_layout.use'] = True
 
 
-def import_data(pth):
+def import_data(path):
     """
     Read CSV file as DataFrame
 
     Parameters
     ----------
-    pth : str
+    path : str
         A path to the CSV file to read
 
     Returns
@@ -54,11 +54,11 @@ def import_data(pth):
         CSV file read as a DataFrame
     """
     try:
-        df = pd.read_csv(pth)
-        logging.info(f"SUCCESS: Import data from {pth}")
+        df = pd.read_csv(path)
+        logging.info(f"SUCCESS: Import data from {path}")
         return df
     except FileNotFoundError as e:
-        logging.error("ERROR: file not found at {pth}")
+        logging.error("ERROR: file not found at {path}")
         raise e
 
 
@@ -101,7 +101,7 @@ def add_churn_column_to_df(df):
     return df
 
 
-def perform_eda(df, dst_pth: str = "."):
+def perform_eda(df, dst_path: str = "./images"):
     """
     Perform EDA on DataFrame and save figures to the `images` folder
 
@@ -109,9 +109,9 @@ def perform_eda(df, dst_pth: str = "."):
     ----------
     df : pd.DataFrame
         DataFrame on which to perform EDA
-    dst_pth : str, default="."
+    dst_path : str, default="./images"
         Folder where to save figures.
-        `images` folder will be created in `folder_pth`
+        `eda` folder will be created in `dst_path` if not existing yet
 
     Returns
     -------
@@ -128,19 +128,15 @@ def perform_eda(df, dst_pth: str = "."):
         )
         raise ValueError()
 
-    images_pth = os.path.join(dst_pth, "images")
-    if not os.path.exists(images_pth):
-        os.makedirs(images_pth)
-        logging.info(f"SUCCESS: using new directory @{images_pth}")
-    else:
-        logging.info(f"SUCCESS: using existing directory @{images_pth}")
+    eda_path = os.path.join(dst_path, "eda")
+    os.makedirs(eda_path, exist_ok=True)
     
     # Plot `Churn` histogram
     plt.figure(figsize=(20,10)) 
     df["Churn"].hist()
     plt.xlabel("Churn")
     plt.ylabel("Count")
-    fig_fpath = os.path.join(images_pth, "churn_hist.png")
+    fig_fpath = os.path.join(eda_path, "churn_hist.png")
     plt.savefig(fig_fpath)
     plt.close()
     logging.info(f"SUCCESS: saved `Churn` hist @{fig_fpath}")
@@ -151,7 +147,7 @@ def perform_eda(df, dst_pth: str = "."):
     df["Customer_Age"].hist()
     plt.xlabel("Customer Age")
     plt.ylabel("Count")
-    fig_fpath = os.path.join(images_pth, "customer_age_hist.png")
+    fig_fpath = os.path.join(eda_path, "customer_age_hist.png")
     plt.savefig(fig_fpath)
     plt.close()
     logging.info(f"SUCCESS: saved `Custormer_Age` hist @{fig_fpath}")
@@ -161,7 +157,7 @@ def perform_eda(df, dst_pth: str = "."):
     df["Marital_Status"].value_counts("normalize").plot(kind="bar")
     plt.xlabel("Marital Status")
     plt.ylabel("Frequency")
-    fig_fpath = os.path.join(images_pth, "marital_status_bar.png")
+    fig_fpath = os.path.join(eda_path, "marital_status_bar.png")
     plt.savefig(fig_fpath)
     plt.close()
     logging.info(f"SUCCESS: saved `Marital_Status` bar plot @{fig_fpath}")
@@ -169,7 +165,7 @@ def perform_eda(df, dst_pth: str = "."):
     # Plot `Total_Trans_Ct` distribution
     plt.figure(figsize=(20,10)) 
     sns.histplot(df["Total_Trans_Ct"], stat="density", kde=True)
-    fig_fpath = os.path.join(images_pth, "total_trans_ct_distri.png")
+    fig_fpath = os.path.join(eda_path, "total_trans_ct_distri.png")
     plt.savefig(fig_fpath)
     plt.close()
     logging.info(f"SUCCESS: saved `Total_Trans_Ct` distribution @{fig_fpath}")
@@ -177,7 +173,7 @@ def perform_eda(df, dst_pth: str = "."):
     # Plot correlation
     plt.figure(figsize=(20,10)) 
     sns.heatmap(df.corr(), annot=False, cmap="Dark2_r", linewidths = 2)
-    fig_fpath = os.path.join(images_pth, "correlation.png")
+    fig_fpath = os.path.join(eda_path, "correlation.png")
     plt.savefig(fig_fpath)
     plt.close()
     logging.info(f"SUCCESS: saved correlation plot @{fig_fpath}")
@@ -290,7 +286,7 @@ def classification_report_image(
     y_train_preds_rf,
     y_test_preds_lr,
     y_test_preds_rf,
-    dst_pth: str = "."
+    dst_path: str = "./images"
 ):
     """
     Produces classification report for training and testing results
@@ -310,9 +306,9 @@ def classification_report_image(
         Test predictions from logistic regression
     y_test_preds_rf : ndarray
         Test predictions from random forest
-    folder_pth : str, default="."
+    dst_path : str, default="./images"
         Folder where to save figures.
-        `images` folder will be created in `folder_pth`
+        `results` folder will be created in `dst_path` if not existing yet
 
     Returns
     -------
@@ -340,12 +336,8 @@ def classification_report_image(
         logging.error(f"ERROR: train arrs and test arrs must have same shape")
         raise ValueError()
 
-    images_pth = os.path.join(dst_pth, "images")
-    if not os.path.exists(images_pth):
-        os.makedirs(images_pth)
-        logging.info(f"SUCCESS: using new directory @{images_pth}")
-    else:
-        logging.info(f"SUCCESS: using existing directory @{images_pth}")
+    results_path = os.path.join(dst_path, "results")
+    os.makedirs(results_path, exist_ok=True)
 
     preds_dict = {
         "lr": {
@@ -379,7 +371,7 @@ def classification_report_image(
             {'fontsize': 10}, fontproperties = 'monospace'
         )
         plt.axis('off')
-        fpath = os.path.join(images_pth, f"{model_name}_results_train.png")
+        fpath = os.path.join(results_path, f"{model_name}_results_train.png")
         plt.savefig(fpath)
         plt.close()
 
@@ -389,9 +381,9 @@ def classification_report_image(
     return
 
 
-def feature_importance_plot(model, X_data, dst_pth: str = "."):
+def feature_importance_plot(model, X_data, dst_path: str = "."):
     """
-    Creates and stores the feature importances in pth
+    Creates and stores the feature importances in path
 
     Parameters
     ----------
@@ -401,8 +393,9 @@ def feature_importance_plot(model, X_data, dst_pth: str = "."):
     X_data : pd.DataFrame
         DataFrame of X values
 
-    dst_pth : str, default="."
-        Path to store the figure
+    dst_path : str, default="."
+        Folder where to save figures.
+        `results` folder will be created in `dst_path` if not existing yet
 
     Returns
     -------
@@ -417,9 +410,8 @@ def feature_importance_plot(model, X_data, dst_pth: str = "."):
         )
         raise ValueError()
 
-    if not os.path.exists(dst_pth):
-        os.makedirs(dst_pth)
-        logging.info(f"SUCCESS: creating directory @{dst_pth}")
+    results_path = os.path.join(dst_path, "results")
+    os.makedirs(results_path, exist_ok=True)
 
     ##################
     # Plot SHAP values
@@ -427,7 +419,7 @@ def feature_importance_plot(model, X_data, dst_pth: str = "."):
     explainer = shap.TreeExplainer(model)
     shap_values = explainer.shap_values(X_data)
     shap.summary_plot(shap_values, X_data, plot_type="bar", show=False)
-    shap_fpath = os.path.join(dst_pth, "shap_values.png")
+    shap_fpath = os.path.join(results_path, "shap_values.png")
     plt.savefig(shap_fpath)
     plt.close()
     logging.info(f"SUCCESS: saved shap values plot @{shap_fpath}")
@@ -456,7 +448,7 @@ def feature_importance_plot(model, X_data, dst_pth: str = "."):
     # Add feature names as x-axis labels
     plt.xticks(range(X_data.shape[1]), names, rotation=90)
 
-    feat_imp_fpath = os.path.join(dst_pth, "feature_importances.png")
+    feat_imp_fpath = os.path.join(results_path, "feature_importances.png")
     plt.savefig(feat_imp_fpath)
     plt.close()
     logging.info(f"SUCCESS: saved feature importances plot @{feat_imp_fpath}")
@@ -464,14 +456,13 @@ def feature_importance_plot(model, X_data, dst_pth: str = "."):
     return
 
 
-
 def train_models(
         X_train,
         X_test,
         y_train,
         y_test,
-        models_dst_pth: str = "./models",
-        images_dst_pth: str = "./images",
+        models_path: str = "./models",
+        images_path: str = "./images",
     ):
     """
     Train, store model results: images + scores, and store models
@@ -482,22 +473,19 @@ def train_models(
         X train and test data
     y_train, y_test : pd.Series
         y train and test data
-    models_dst_pth: str, default="./models"
+    models_path: str, default="./models"
         Folder where to model artifacts
-    images_dst_pth: str, default="./images"
+    images_path: str, default="./images"
         Folder where to save ROC curves plot
 
     Returns
     -------
     None
     """
-    if not os.path.exists(models_dst_pth):
-        os.makedirs(models_dst_pth, exist_ok=True)
-        logging.info(f"SUCCESS: created new directory @{models_dst_pth}")
+    os.makedirs(models_path, exist_ok=True)
 
-    if not os.path.exists(images_dst_pth):
-        os.makedirs(images_dst_pth, exist_ok=True)
-        logging.info(f"SUCCESS: created new directory @{images_dst_pth}")
+    results_path = os.path.join(images_path, "results")
+    os.makedirs(results_path, exist_ok=True)
 
     # Grid Search
     rfc = RandomForestClassifier(random_state=42)
@@ -520,7 +508,7 @@ def train_models(
     # Save models
     model_dict = {"logistic": lrc, "rfc": rfc}
     for name, model in model_dict.items():
-        fpath = os.path.join(models_dst_pth, f"{name}_clf.pkl")
+        fpath = os.path.join(models_path, f"{name}_clf.pkl")
         dump(model, fpath)
         logging.info(f"SUCCESS: saved {name} model artifact @{fpath}")
 
@@ -541,7 +529,7 @@ def train_models(
     ax = plt.gca()
     rfc_disp = plot_roc_curve(rfc, X_test, y_test, ax=ax, alpha=0.8)
     lrc_plot = plot_roc_curve(lrc, X_test, y_test, ax=ax, alpha=0.8)
-    fpath = os.path.join(images_dst_pth, "roc_curves.png")
+    fpath = os.path.join(results_path, "roc_curves.png")
     plt.savefig(fpath)
     plt.close()
     logging.info(f"SUCCESS: made ROC curves @{fpath}")
@@ -556,7 +544,7 @@ def train_models(
 
     # Shap + Feature importances
     logging.info("SUCCESS: making feature importances plots...")
-    feature_importance_plot(cv_rfc.best_estimator_, X_test, images_dst_pth)
+    feature_importance_plot(cv_rfc.best_estimator_, X_test)
 
     return
 
@@ -570,7 +558,4 @@ if __name__ == "__main__":
 
     X_train, X_test, y_train, y_test = perform_feature_engineering(df, "Churn")
 
-    train_models(
-        X_train, X_test, y_train, y_test,
-        models_dst_pth="./models", images_dst_pth="./images"
-    )
+    train_models(X_train, X_test, y_train, y_test)
