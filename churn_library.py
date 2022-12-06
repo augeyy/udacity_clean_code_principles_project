@@ -179,6 +179,7 @@ def perform_eda(df, dst_pth: str = "."):
     df["Churn"].hist()
     fig_fpath = os.path.join(images_pth, "churn_hist.png")
     plt.savefig(fig_fpath)
+    plt.close()
     logging.info(f"SUCCESS: saved `Churn` hist @{fig_fpath}")
 
 
@@ -187,6 +188,7 @@ def perform_eda(df, dst_pth: str = "."):
     df["Customer_Age"].hist()
     fig_fpath = os.path.join(images_pth, "customer_age_hist.png")
     plt.savefig(fig_fpath)
+    plt.close()
     logging.info(f"SUCCESS: saved `Custormer_Age` hist @{fig_fpath}")
 
     # Plot `Marital_Status` bar
@@ -194,6 +196,7 @@ def perform_eda(df, dst_pth: str = "."):
     df["Marital_Status"].value_counts("normalize").plot(kind="bar")
     fig_fpath = os.path.join(images_pth, "marital_status_bar.png")
     plt.savefig(fig_fpath)
+    plt.close()
     logging.info(f"SUCCESS: saved `Marital_Status` bar plot @{fig_fpath}")
 
     # Plot `Total_Trans_Ct` distribution
@@ -201,6 +204,7 @@ def perform_eda(df, dst_pth: str = "."):
     sns.histplot(df["Total_Trans_Ct"], stat="density", kde=True)
     fig_fpath = os.path.join(images_pth, "total_trans_ct_distri.png")
     plt.savefig(fig_fpath)
+    plt.close()
     logging.info(f"SUCCESS: saved `Total_Trans_Ct` distribution @{fig_fpath}")
 
     # Plot correlation
@@ -208,6 +212,7 @@ def perform_eda(df, dst_pth: str = "."):
     sns.heatmap(df.corr(), annot=False, cmap="Dark2_r", linewidths = 2)
     fig_fpath = os.path.join(images_pth, "correlation.png")
     plt.savefig(fig_fpath)
+    plt.close()
     logging.info(f"SUCCESS: saved correlation plot @{fig_fpath}")
 
     return
@@ -409,6 +414,7 @@ def classification_report_image(
         )
         plt.axis('off')
         plt.savefig(fpath)
+        plt.close()
 
         logging.info(
             f"SUCCESS: wrote {model_name} classfication results @{fpath}"
@@ -456,6 +462,7 @@ def feature_importance_plot(model, X_data, dst_pth: str = "."):
     shap.summary_plot(shap_values, X_data, plot_type="bar", show=False)
     shap_fpath = os.path.join(dst_pth, "shap_values.png")
     plt.savefig(shap_fpath)
+    plt.close()
     logging.info(f"SUCCESS: saved shap values plot @{shap_fpath}")
 
     #########################
@@ -484,6 +491,7 @@ def feature_importance_plot(model, X_data, dst_pth: str = "."):
 
     feat_imp_fpath = os.path.join(dst_pth, "feature_importances.png")
     plt.savefig(feat_imp_fpath)
+    plt.close()
     logging.info(f"SUCCESS: saved feature importances plot @{feat_imp_fpath}")
 
     return
@@ -576,6 +584,7 @@ def train_models(
     lrc_plot.plot(ax=ax, alpha=0.8)
     fpath = os.path.join(images_dst_pth, "roc_curves.png")
     plt.savefig(fpath)
+    plt.close()
     logging.info(f"SUCCESS: made ROC curves @{fpath}")
 
     # Model results
