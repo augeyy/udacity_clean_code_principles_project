@@ -3,7 +3,7 @@ A module to perform data science steps for predicting customer churn based on
 the final project of the first course "Clean Code Principles" which is part 
 of the Machine Learning DevOps Engineer Nanodegree
 
-Author: Yohann A.
+Author: Yohann A. <yohann.augey@gmail.com>
 Date: Dec. 2022
 """
 import os
@@ -21,6 +21,13 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import shap
 
+from config import (
+    CATEGORICAL_COLS,
+    QUANT_COLS,
+    FEATURE_LIST,
+    PARAM_GRID
+)
+
 import logging
 logging.basicConfig(
     filename="./logs/churn_library.log",
@@ -28,54 +35,8 @@ logging.basicConfig(
     filemode="w",
     format="[%(filename)s:%(lineno)s - %(funcName)30s()] - %(levelname)s - %(message)s")
 
-
-# Columns to keep training model features engineering
-CATEGORICAL_COLS = [
-    'Gender',
-    'Education_Level',
-    'Marital_Status',
-    'Income_Category',
-    'Card_Category'                
-]
-
-QUANT_COLS = [
-    'Customer_Age',
-    'Dependent_count', 
-    'Months_on_book',
-    'Total_Relationship_Count', 
-    'Months_Inactive_12_mon',
-    'Contacts_Count_12_mon', 
-    'Credit_Limit', 
-    'Total_Revolving_Bal',
-    'Avg_Open_To_Buy', 
-    'Total_Amt_Chng_Q4_Q1', 
-    'Total_Trans_Amt',
-    'Total_Trans_Ct', 
-    'Total_Ct_Chng_Q4_Q1', 
-    'Avg_Utilization_Ratio'
-]
-
-FEATURE_LIST = [
-    'Customer_Age',
-    'Dependent_count',
-    'Months_on_book',
-    'Total_Relationship_Count',
-    'Months_Inactive_12_mon',
-    'Contacts_Count_12_mon',
-    'Credit_Limit',
-    'Total_Revolving_Bal',
-    'Avg_Open_To_Buy',
-    'Total_Amt_Chng_Q4_Q1',
-    'Total_Trans_Amt',
-    'Total_Trans_Ct',
-    'Total_Ct_Chng_Q4_Q1',
-    'Avg_Utilization_Ratio',
-    'Gender_Churn',
-    'Education_Level_Churn',
-    'Marital_Status_Churn', 
-    'Income_Category_Churn',
-    'Card_Category_Churn'
-]
+# To make sure legend, axis labels, etc fit in the figure window
+plt.rcParams['figure.constrained_layout.use'] = True
 
 
 def import_data(pth):
@@ -538,18 +499,11 @@ def train_models(
     # Reference: https://scikit-learn.org/stable/modules/linear_model.html#logistic-regression
     lrc = LogisticRegression(solver='lbfgs', max_iter=3000)
 
-    param_grid = { 
-        'n_estimators': [200, 500],
-        'max_features': ['auto', 'sqrt'],
-        'max_depth' : [4,5,100],
-        'criterion' :['gini', 'entropy']
-    }
-
     #######
     # Train
     #######
     logging.info("SUCCESS: training lr and rf models...")
-    cv_rfc = GridSearchCV(estimator=rfc, param_grid=param_grid, cv=5)
+    cv_rfc = GridSearchCV(estimator=rfc, param_grid=PARAM_GRID, cv=5)
     cv_rfc.fit(X_train, y_train)
     rfc = cv_rfc.best_estimator_
     logging.info("SUCCESS: finished training RF models via Grid Search!")
