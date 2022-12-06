@@ -138,6 +138,8 @@ def perform_eda(df, dst_pth: str = "."):
     # Plot `Churn` histogram
     plt.figure(figsize=(20,10)) 
     df["Churn"].hist()
+    plt.xlabel("Churn")
+    plt.ylabel("Count")
     fig_fpath = os.path.join(images_pth, "churn_hist.png")
     plt.savefig(fig_fpath)
     plt.close()
@@ -147,6 +149,8 @@ def perform_eda(df, dst_pth: str = "."):
     # Plot `Customer_Age` histogram
     plt.figure(figsize=(20,10)) 
     df["Customer_Age"].hist()
+    plt.xlabel("Customer Age")
+    plt.ylabel("Count")
     fig_fpath = os.path.join(images_pth, "customer_age_hist.png")
     plt.savefig(fig_fpath)
     plt.close()
@@ -155,6 +159,8 @@ def perform_eda(df, dst_pth: str = "."):
     # Plot `Marital_Status` bar
     plt.figure(figsize=(20,10)) 
     df["Marital_Status"].value_counts("normalize").plot(kind="bar")
+    plt.xlabel("Marital Status")
+    plt.ylabel("Frequency")
     fig_fpath = os.path.join(images_pth, "marital_status_bar.png")
     plt.savefig(fig_fpath)
     plt.close()
@@ -355,7 +361,6 @@ def classification_report_image(
         y_train_preds = preds_dict[model_name]["train"]
         y_test_preds = preds_dict[model_name]["test"]
 
-        fpath = os.path.join(images_pth, f"{model_name}_results_train.png")
         plt.rc('figure', figsize=(5, 5))
         plt.text(
             0.01, 1.25, str('Random Forest Train'),
@@ -374,6 +379,7 @@ def classification_report_image(
             {'fontsize': 10}, fontproperties = 'monospace'
         )
         plt.axis('off')
+        fpath = os.path.join(images_pth, f"{model_name}_results_train.png")
         plt.savefig(fpath)
         plt.close()
 
@@ -531,11 +537,10 @@ def train_models(
 
     # Save ROC curves
     logging.info("SUCCESS: making ROC curves...")
-    lrc_plot = plot_roc_curve(lrc, X_test, y_test)
     plt.figure(figsize=(15, 8))
     ax = plt.gca()
     rfc_disp = plot_roc_curve(rfc, X_test, y_test, ax=ax, alpha=0.8)
-    lrc_plot.plot(ax=ax, alpha=0.8)
+    lrc_plot = plot_roc_curve(lrc, X_test, y_test, ax=ax, alpha=0.8)
     fpath = os.path.join(images_dst_pth, "roc_curves.png")
     plt.savefig(fpath)
     plt.close()
