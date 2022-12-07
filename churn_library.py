@@ -55,7 +55,7 @@ def import_data(path):
     """
     try:
         df = pd.read_csv(path)
-        logging.info(f"SUCCESS: Import data from {path}")
+        logging.info(f"imported data from {path}")
         return df
     except FileNotFoundError as e:
         logging.error("ERROR: file not found at {path}")
@@ -96,7 +96,7 @@ def add_churn_column_to_df(df):
     
     df["Churn"] = df["Attrition_Flag"].apply(
         lambda val: 0 if val == "Existing Customer" else 1)
-    logging.info("SUCCESS: make `Churn` column")
+    logging.info("made `Churn` column")
 
     return df
 
@@ -139,7 +139,7 @@ def perform_eda(df, dst_path: str = "./images"):
     fig_fpath = os.path.join(eda_path, "churn_hist.png")
     plt.savefig(fig_fpath)
     plt.close()
-    logging.info(f"SUCCESS: saved `Churn` hist @{fig_fpath}")
+    logging.info(f"saved `Churn` hist @{fig_fpath}")
 
 
     # Plot `Customer_Age` histogram
@@ -150,7 +150,7 @@ def perform_eda(df, dst_path: str = "./images"):
     fig_fpath = os.path.join(eda_path, "customer_age_hist.png")
     plt.savefig(fig_fpath)
     plt.close()
-    logging.info(f"SUCCESS: saved `Custormer_Age` hist @{fig_fpath}")
+    logging.info(f"saved `Custormer_Age` hist @{fig_fpath}")
 
     # Plot `Marital_Status` bar
     plt.figure(figsize=(20,10)) 
@@ -160,7 +160,7 @@ def perform_eda(df, dst_path: str = "./images"):
     fig_fpath = os.path.join(eda_path, "marital_status_bar.png")
     plt.savefig(fig_fpath)
     plt.close()
-    logging.info(f"SUCCESS: saved `Marital_Status` bar plot @{fig_fpath}")
+    logging.info(f"saved `Marital_Status` bar plot @{fig_fpath}")
 
     # Plot `Total_Trans_Ct` distribution
     plt.figure(figsize=(20,10)) 
@@ -168,7 +168,7 @@ def perform_eda(df, dst_path: str = "./images"):
     fig_fpath = os.path.join(eda_path, "total_trans_ct_distri.png")
     plt.savefig(fig_fpath)
     plt.close()
-    logging.info(f"SUCCESS: saved `Total_Trans_Ct` distribution @{fig_fpath}")
+    logging.info(f"saved `Total_Trans_Ct` distribution @{fig_fpath}")
 
     # Plot correlation
     plt.figure(figsize=(20,10)) 
@@ -176,7 +176,7 @@ def perform_eda(df, dst_path: str = "./images"):
     fig_fpath = os.path.join(eda_path, "correlation.png")
     plt.savefig(fig_fpath)
     plt.close()
-    logging.info(f"SUCCESS: saved correlation plot @{fig_fpath}")
+    logging.info(f"saved correlation plot @{fig_fpath}")
 
     return
 
@@ -218,7 +218,7 @@ def encoder_helper(df, category_lst, response):
     for category in category_lst:
         prop_dict = df.groupby(category)[response].mean().to_dict()
         df[category + '_' + response] = df[category].map(prop_dict)
-        logging.info(f"SUCCESS: encoded `{category}` column!")
+        logging.info(f"encoded `{category}` column")
     
     return df
 
@@ -256,7 +256,6 @@ def perform_feature_engineering(df, response):
         CATEGORICAL_COLS,
         response
     )
-    logging.info("SUCCESS: encoded all categorical features!")
 
     try:
         assert set(FEATURE_LIST) <= set(df.columns)
@@ -274,7 +273,7 @@ def perform_feature_engineering(df, response):
             test_size=0.3,
             random_state=42
         )
-    logging.info("SUCCESS: split train and test sets!")
+    logging.info("split train and test sets")
 
     return X_train, X_test, y_train, y_test
 
@@ -376,7 +375,7 @@ def classification_report_image(
         plt.close()
 
         logging.info(
-            f"SUCCESS: wrote {model_name} classfication results @{fpath}"
+            f"saved {model_name} classfication results @{fpath}"
         )
     return
 
@@ -422,7 +421,7 @@ def feature_importance_plot(model, X_data, dst_path: str = "."):
     shap_fpath = os.path.join(results_path, "shap_values.png")
     plt.savefig(shap_fpath)
     plt.close()
-    logging.info(f"SUCCESS: saved shap values plot @{shap_fpath}")
+    logging.info(f"saved shap values plot @{shap_fpath}")
 
     #########################
     # Plot feature importance
@@ -451,7 +450,7 @@ def feature_importance_plot(model, X_data, dst_path: str = "."):
     feat_imp_fpath = os.path.join(results_path, "feature_importances.png")
     plt.savefig(feat_imp_fpath)
     plt.close()
-    logging.info(f"SUCCESS: saved feature importances plot @{feat_imp_fpath}")
+    logging.info(f"saved feature importances plot @{feat_imp_fpath}")
 
     return
 
@@ -496,35 +495,35 @@ def train_models(
     #######
     # Train
     #######
-    logging.info("SUCCESS: training lr and rf models...")
+    logging.info("training lr and rf models...")
     cv_rfc = GridSearchCV(estimator=rfc, param_grid=PARAM_GRID, cv=5)
     cv_rfc.fit(X_train, y_train)
     rfc = cv_rfc.best_estimator_
-    logging.info("SUCCESS: finished training RF models via Grid Search!")
+    logging.info("finished training RF models via Grid Search")
 
     lrc.fit(X_train, y_train)
-    logging.info("SUCCESS: finished training Logistic Regression model!")
+    logging.info("finished training Logistic Regression model")
 
     # Save models
     model_dict = {"logistic": lrc, "rfc": rfc}
     for name, model in model_dict.items():
         fpath = os.path.join(models_path, f"{name}_clf.pkl")
         dump(model, fpath)
-        logging.info(f"SUCCESS: saved {name} model artifact @{fpath}")
+        logging.info(f"saved {name} model artifact @{fpath}")
 
     #######
     # Eval
     #######
-    logging.info("SUCCESS: making predictions...")
+    logging.info("making predictions...")
     y_train_preds_rf = rfc.predict(X_train)
     y_test_preds_rf = rfc.predict(X_test)
 
     y_train_preds_lr = lrc.predict(X_train)
     y_test_preds_lr = lrc.predict(X_test)
-    logging.info("SUCCESS: finished making predictions!")
+    logging.info("finished making predictions!")
 
     # Save ROC curves
-    logging.info("SUCCESS: making ROC curves...")
+    logging.info("making ROC curves...")
     plt.figure(figsize=(15, 8))
     ax = plt.gca()
     rfc_disp = plot_roc_curve(rfc, X_test, y_test, ax=ax, alpha=0.8)
@@ -532,10 +531,10 @@ def train_models(
     fpath = os.path.join(results_path, "roc_curves.png")
     plt.savefig(fpath)
     plt.close()
-    logging.info(f"SUCCESS: made ROC curves @{fpath}")
+    logging.info(f"saved ROC curves @{fpath}")
 
     # Model results
-    logging.info("SUCCESS: making classification results...")
+    logging.info("making classification results...")
     classification_report_image(
         y_train, y_test,
         y_train_preds_lr, y_train_preds_rf,
@@ -543,13 +542,15 @@ def train_models(
     )
 
     # Shap + Feature importances
-    logging.info("SUCCESS: making feature importances plots...")
+    logging.info("making feature importances plots...")
     feature_importance_plot(cv_rfc.best_estimator_, X_test)
 
     return
 
 
 if __name__ == "__main__":
+    logging.info("START PIPELINE")
+
     df = import_data("./data/bank_data.csv")
 
     df = add_churn_column_to_df(df)
@@ -559,3 +560,5 @@ if __name__ == "__main__":
     X_train, X_test, y_train, y_test = perform_feature_engineering(df, "Churn")
 
     train_models(X_train, X_test, y_train, y_test)
+
+    logging.info("END PIPELINE")
