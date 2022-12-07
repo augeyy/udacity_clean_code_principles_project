@@ -1,37 +1,37 @@
 """
 A module to perform data science steps for predicting customer churn based on
-the final project of the first course "Clean Code Principles" which is part 
+the final project of the first course "Clean Code Principles" which is part
 of the Machine Learning DevOps Engineer Nanodegree
 
 Author: Yohann A. <yohann.augey@gmail.com>
 Date: Dec. 2022
 """
+import logging
 import os
-os.environ["QT_QPA_PLATFORM"]="offscreen"
-from joblib import dump
 
+from joblib import dump
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import plot_roc_curve, classification_report
-from sklearn.linear_model import LogisticRegression
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.model_selection import GridSearchCV
-import matplotlib.pyplot as plt
 import seaborn as sns
 import shap
+from sklearn.model_selection import GridSearchCV
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import plot_roc_curve, classification_report
+from sklearn.model_selection import train_test_split
 
 from config import (
     CATEGORICAL_COLS,
-    QUANT_COLS,
     FEATURE_LIST,
     PARAM_GRID
 )
 
-import logging
+os.environ["QT_QPA_PLATFORM"] = "offscreen"
+
 logging.basicConfig(
     filename="./logs/churn_library.log",
-    level = logging.INFO,
+    level=logging.INFO,
     filemode="w",
     format="[%(filename)s:%(lineno)s - %(funcName)30s()] - %(levelname)s - %(message)s")
 
@@ -55,11 +55,11 @@ def import_data(path):
     """
     try:
         df = pd.read_csv(path)
-        logging.info(f"imported data from {path}")
+        logging.info("imported data from %s", path)
         return df
-    except FileNotFoundError as e:
-        logging.error("ERROR: file not found at {path}")
-        raise e
+    except FileNotFoundError:
+        logging.error("ERROR: file not found at %s", path)
+        raise
 
 
 def add_churn_column_to_df(df):
@@ -70,7 +70,7 @@ def add_churn_column_to_df(df):
     ----------
     df : pd.DataFrame
         DataFrame containing the column `Attrition_Flag`
-    
+
     Returns
     -------
     df : pd.DataFrame
@@ -79,21 +79,22 @@ def add_churn_column_to_df(df):
     # Check that `Attrition_Flag` exists
     try:
         assert "Attrition_Flag" in df.columns
-    except AssertionError:
+    except AssertionError as exc:
         logging.error("ERROR: `Attrition_Flag` column not in df columns")
-        raise ValueError()
-    
+        raise ValueError() from exc
+
     # Check that `Attrition_Flag` values are well-defined
     try:
         expected_values_set = {"Existing Customer", "Attrited Customer"}
         assert set(df["Attrition_Flag"].unique()).issubset(
             expected_values_set
         )
-    except:
+    except AssertionError as exc:
         logging.error(
-            "ERROR: `Attrition_Flag` values must within {expected_values_set})")
-        raise ValueError()
-    
+            "ERROR: `Attrition_Flag` values must within %s)",
+            expected_values_set)
+        raise ValueError() from exc
+
     df["Churn"] = df["Attrition_Flag"].apply(
         lambda val: 0 if val == "Existing Customer" else 1)
     logging.info("made `Churn` column")
@@ -122,63 +123,60 @@ def perform_eda(df, dst_path: str = "./images"):
         cols_for_eda = \
             ["Churn", "Customer_Age", "Marital_Status", "Total_Trans_Ct"]
         assert set(cols_for_eda) <= (set(df.columns))
-    except AssertionError:
+    except AssertionError as exc:
         logging.error(
-            f"ERROR: df does not contain all expected columns {cols_for_eda}"
-        )
-        raise ValueError()
+            "ERROR: df does not contain all expected columns %s",
+            cols_for_eda)
+        raise ValueError() from exc
 
     eda_path = os.path.join(dst_path, "eda")
     os.makedirs(eda_path, exist_ok=True)
-    
+
     # Plot `Churn` histogram
-    plt.figure(figsize=(20,10)) 
+    plt.figure(figsize=(20, 10))
     df["Churn"].hist()
     plt.xlabel("Churn")
     plt.ylabel("Count")
     fig_fpath = os.path.join(eda_path, "churn_hist.png")
     plt.savefig(fig_fpath)
     plt.close()
-    logging.info(f"saved `Churn` hist @{fig_fpath}")
-
+    logging.info("saved `Churn` hist @%s", fig_fpath)
 
     # Plot `Customer_Age` histogram
-    plt.figure(figsize=(20,10)) 
+    plt.figure(figsize=(20, 10))
     df["Customer_Age"].hist()
     plt.xlabel("Customer Age")
     plt.ylabel("Count")
     fig_fpath = os.path.join(eda_path, "customer_age_hist.png")
     plt.savefig(fig_fpath)
     plt.close()
-    logging.info(f"saved `Custormer_Age` hist @{fig_fpath}")
+    logging.info("saved `Custormer_Age` hist @%s", fig_fpath)
 
     # Plot `Marital_Status` bar
-    plt.figure(figsize=(20,10)) 
+    plt.figure(figsize=(20, 10))
     df["Marital_Status"].value_counts("normalize").plot(kind="bar")
     plt.xlabel("Marital Status")
     plt.ylabel("Frequency")
     fig_fpath = os.path.join(eda_path, "marital_status_bar.png")
     plt.savefig(fig_fpath)
     plt.close()
-    logging.info(f"saved `Marital_Status` bar plot @{fig_fpath}")
+    logging.info("saved `Marital_Status` bar plot @%s", fig_fpath)
 
     # Plot `Total_Trans_Ct` distribution
-    plt.figure(figsize=(20,10)) 
+    plt.figure(figsize=(20, 10))
     sns.histplot(df["Total_Trans_Ct"], stat="density", kde=True)
     fig_fpath = os.path.join(eda_path, "total_trans_ct_distri.png")
     plt.savefig(fig_fpath)
     plt.close()
-    logging.info(f"saved `Total_Trans_Ct` distribution @{fig_fpath}")
+    logging.info("saved `Total_Trans_Ct` distribution @%s", fig_fpath)
 
     # Plot correlation
-    plt.figure(figsize=(20,10)) 
-    sns.heatmap(df.corr(), annot=False, cmap="Dark2_r", linewidths = 2)
+    plt.figure(figsize=(20, 10))
+    sns.heatmap(df.corr(), annot=False, cmap="Dark2_r", linewidths=2)
     fig_fpath = os.path.join(eda_path, "correlation.png")
     plt.savefig(fig_fpath)
     plt.close()
-    logging.info(f"saved correlation plot @{fig_fpath}")
-
-    return
+    logging.info("saved correlation plot @%s", fig_fpath)
 
 
 def encoder_helper(df, category_lst, response):
@@ -205,21 +203,22 @@ def encoder_helper(df, category_lst, response):
     df = df.copy()
     try:
         assert response in df.columns
-    except AssertionError:
-        logging.error(f"ERROR: df does not contain `{response}` column")
-        raise ValueError()
+    except AssertionError as exc:
+        logging.error("ERROR: df does not contain `%s` column",
+        response)
+        raise ValueError() from exc
     try:
         assert set(category_lst) <= set(df.columns)
-    except:
+    except AssertionError as exc:
         missing_cols = list(set(category_lst) - set(df.columns))
-        logging.error(f"ERROR: df does not contain {missing_cols} column(s)")
-        raise ValueError()
+        logging.error("ERROR: df does not contain %s column(s)", missing_cols)
+        raise ValueError() from exc
 
     for category in category_lst:
         prop_dict = df.groupby(category)[response].mean().to_dict()
         df[category + '_' + response] = df[category].map(prop_dict)
-        logging.info(f"encoded `{category}` column")
-    
+        logging.info("encoded `%s` column", category)
+
     return df
 
 
@@ -244,9 +243,9 @@ def perform_feature_engineering(df, response):
     df = df.copy()
     try:
         assert response in df.columns
-    except AssertionError:
-        logging.error(f"ERROR: df does not contain `{response}` column")
-        raise ValueError()
+    except AssertionError as exc:
+        logging.error("ERROR: df does not contain `%s` column", response)
+        raise ValueError() from exc
 
     # Encode categorical features
     # NOTE: mean value is calculated on the entire dataset --> leakage
@@ -259,10 +258,10 @@ def perform_feature_engineering(df, response):
 
     try:
         assert set(FEATURE_LIST) <= set(df.columns)
-    except:
+    except AssertionError as exc:
         missing_cols = list(set(FEATURE_LIST) - set(df.columns))
-        logging.error(f"ERROR: df does not contain {missing_cols} column(s)")
-        raise ValueError()
+        logging.error("ERROR: df does not contain %s column(s)", missing_cols)
+        raise ValueError() from exc
 
     X = df[FEATURE_LIST]
     y = df[response]
@@ -313,16 +312,18 @@ def classification_report_image(
     -------
     None
     """
+    # pylint: disable=too-many-arguments
+
     # Check shape of arrays
     try:
         assert (
-            y_train.ndim == y_train_preds_lr.ndim == y_train_preds_rf.ndim \
-            == y_test.ndim == y_test_preds_lr.ndim == y_test_preds_rf.ndim \
+            y_train.ndim == y_train_preds_lr.ndim == y_train_preds_rf.ndim
+            == y_test.ndim == y_test_preds_lr.ndim == y_test_preds_rf.ndim
             == 1
         )
-    except AssertionError:
-        logging.error(f"ERROR: arrs must be 1D")
-        raise ValueError()
+    except AssertionError as exc:
+        logging.error("ERROR: arrs must be 1D")
+        raise ValueError() from exc
 
     try:
         assert (
@@ -331,9 +332,9 @@ def classification_report_image(
         assert (
             y_test.shape == y_test_preds_lr.shape == y_test_preds_rf.shape
         )
-    except AssertionError:
-        logging.error(f"ERROR: train arrs and test arrs must have same shape")
-        raise ValueError()
+    except AssertionError as exc:
+        logging.error("ERROR: train arrs and test arrs must have same shape")
+        raise ValueError() from exc
 
     results_path = os.path.join(dst_path, "results")
     os.makedirs(results_path, exist_ok=True)
@@ -348,36 +349,33 @@ def classification_report_image(
             "test": y_test_preds_rf
         }
     }
-    for model_name in preds_dict.keys():
-        y_train_preds = preds_dict[model_name]["train"]
-        y_test_preds = preds_dict[model_name]["test"]
+    for model_name, train_test_dict in preds_dict.items():
+        y_train_preds = train_test_dict["train"]
+        y_test_preds = train_test_dict["test"]
 
         plt.rc('figure', figsize=(5, 5))
         plt.text(
             0.01, 1.25, str('Random Forest Train'),
-            {'fontsize': 10}, fontproperties = 'monospace'
+            {'fontsize': 10}, fontproperties='monospace'
         )
         plt.text(
             0.01, 0.05, str(classification_report(y_test, y_test_preds)),
-            {'fontsize': 10}, fontproperties = 'monospace'
+            {'fontsize': 10}, fontproperties='monospace'
         )
         plt.text(
             0.01, 0.6, str('Random Forest Test'),
-            {'fontsize': 10}, fontproperties = 'monospace'
+            {'fontsize': 10}, fontproperties='monospace'
         )
         plt.text(
             0.01, 0.7, str(classification_report(y_train, y_train_preds)),
-            {'fontsize': 10}, fontproperties = 'monospace'
+            {'fontsize': 10}, fontproperties='monospace'
         )
         plt.axis('off')
         fpath = os.path.join(results_path, f"{model_name}_results_train.png")
         plt.savefig(fpath)
         plt.close()
 
-        logging.info(
-            f"saved {model_name} classfication results @{fpath}"
-        )
-    return
+        logging.info("saved %s classfication results @%s", model_name, fpath)
 
 
 def feature_importance_plot(model, X_data, dst_path: str = "."):
@@ -403,11 +401,11 @@ def feature_importance_plot(model, X_data, dst_path: str = "."):
     # Check that model has the attribute `feature_importances_`
     try:
         assert hasattr(model, "feature_importances_")
-    except AssertionError:
+    except AssertionError as exc:
         logging.error(
             "ERROR: `model` does not have the attribute `feature importances`"
         )
-        raise ValueError()
+        raise ValueError() from exc
 
     results_path = os.path.join(dst_path, "results")
     os.makedirs(results_path, exist_ok=True)
@@ -421,7 +419,7 @@ def feature_importance_plot(model, X_data, dst_path: str = "."):
     shap_fpath = os.path.join(results_path, "shap_values.png")
     plt.savefig(shap_fpath)
     plt.close()
-    logging.info(f"saved shap values plot @{shap_fpath}")
+    logging.info("saved shap values plot @%s", shap_fpath)
 
     #########################
     # Plot feature importance
@@ -435,7 +433,7 @@ def feature_importance_plot(model, X_data, dst_path: str = "."):
     names = [X_data.columns[i] for i in indices]
 
     # Create plot
-    plt.figure(figsize=(20,5))
+    plt.figure(figsize=(20, 5))
 
     # Create plot title
     plt.title("Feature Importance")
@@ -450,19 +448,17 @@ def feature_importance_plot(model, X_data, dst_path: str = "."):
     feat_imp_fpath = os.path.join(results_path, "feature_importances.png")
     plt.savefig(feat_imp_fpath)
     plt.close()
-    logging.info(f"saved feature importances plot @{feat_imp_fpath}")
-
-    return
+    logging.info("saved feature importances plot @%s", feat_imp_fpath)
 
 
 def train_models(
-        X_train,
-        X_test,
-        y_train,
-        y_test,
-        models_path: str = "./models",
-        images_path: str = "./images",
-    ):
+    X_train,
+    X_test,
+    y_train,
+    y_test,
+    models_path: str = "./models",
+    images_path: str = "./images",
+):
     """
     Train, store model results: images + scores, and store models
 
@@ -481,6 +477,9 @@ def train_models(
     -------
     None
     """
+    # pylint: disable=too-many-arguments
+    # pylint: disable=too-many-locals
+
     os.makedirs(models_path, exist_ok=True)
 
     results_path = os.path.join(images_path, "results")
@@ -489,7 +488,8 @@ def train_models(
     # Grid Search
     rfc = RandomForestClassifier(random_state=42)
     # Use a different solver if the default 'lbfgs' fails to converge
-    # Reference: https://scikit-learn.org/stable/modules/linear_model.html#logistic-regression
+    # Reference:
+    # https://scikit-learn.org/stable/modules/linear_model.html#logistic-regression
     lrc = LogisticRegression(solver='lbfgs', max_iter=3000)
 
     #######
@@ -509,7 +509,7 @@ def train_models(
     for name, model in model_dict.items():
         fpath = os.path.join(models_path, f"{name}_clf.pkl")
         dump(model, fpath)
-        logging.info(f"saved {name} model artifact @{fpath}")
+        logging.info("saved %s model artifact @%s", name, fpath)
 
     #######
     # Eval
@@ -526,12 +526,12 @@ def train_models(
     logging.info("making ROC curves...")
     plt.figure(figsize=(15, 8))
     ax = plt.gca()
-    rfc_disp = plot_roc_curve(rfc, X_test, y_test, ax=ax, alpha=0.8)
-    lrc_plot = plot_roc_curve(lrc, X_test, y_test, ax=ax, alpha=0.8)
+    plot_roc_curve(rfc, X_test, y_test, ax=ax, alpha=0.8)
+    plot_roc_curve(lrc, X_test, y_test, ax=ax, alpha=0.8)
     fpath = os.path.join(results_path, "roc_curves.png")
     plt.savefig(fpath)
     plt.close()
-    logging.info(f"saved ROC curves @{fpath}")
+    logging.info("saved ROC curves @%s", fpath)
 
     # Model results
     logging.info("making classification results...")
@@ -545,10 +545,9 @@ def train_models(
     logging.info("making feature importances plots...")
     feature_importance_plot(cv_rfc.best_estimator_, X_test)
 
-    return
 
-
-if __name__ == "__main__":
+def main():
+    """Function used to run the pipeline"""
     logging.info("START PIPELINE")
 
     df = import_data("./data/bank_data.csv")
@@ -562,3 +561,7 @@ if __name__ == "__main__":
     train_models(X_train, X_test, y_train, y_test)
 
     logging.info("END PIPELINE")
+
+
+if __name__ == "__main__":
+    main()

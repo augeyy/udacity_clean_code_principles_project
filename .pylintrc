@@ -1,0 +1,3 @@
+[BASIC]
+# To prevent `Variable name {} doesn't conform to snake_case naming style` warning
+good-names=df, X, y, X_train, X_test, X_data, ax
