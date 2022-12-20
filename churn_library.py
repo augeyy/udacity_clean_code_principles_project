@@ -76,7 +76,7 @@ def add_churn_column_to_df(df):
         DataFrame containng the new column `Churn` (modify inplace)
     """
     # Check that `Attrition_Flag` exists
-    if not "Attrition_Flag" in df.columns:
+    if "Attrition_Flag" not in df.columns:
         raise ValueError("ERROR: `Attrition_Flag` column not in df columns")
 
     # Check that `Attrition_Flag` values are well-defined
