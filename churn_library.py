@@ -112,15 +112,13 @@ def perform_eda(df, dst_path: str = "./images"):
     None
     """
     # Check that DataFrame contains expected columns
-    try:
-        cols_for_eda = \
-            ["Churn", "Customer_Age", "Marital_Status", "Total_Trans_Ct"]
-        assert set(cols_for_eda) <= (set(df.columns))
-    except AssertionError as exc:
-        logging.error(
+    cols_for_eda = \
+        ["Churn", "Customer_Age", "Marital_Status", "Total_Trans_Ct"]
+    if not set(cols_for_eda) <= (set(df.columns)):
+        raise ValueError(
             "ERROR: df does not contain all expected columns %s",
-            cols_for_eda)
-        raise ValueError() from exc
+            cols_for_eda
+            )
 
     eda_path = os.path.join(dst_path, "eda")
     os.makedirs(eda_path, exist_ok=True)
@@ -194,23 +192,18 @@ def encoder_helper(df, category_lst, response):
         DataFrame with new columns for
     """
     df = df.copy()
-    try:
-        assert response in df.columns
-    except AssertionError as exc:
-        logging.error("ERROR: df does not contain `%s` column",
-        response)
-        raise ValueError() from exc
-    try:
-        assert set(category_lst) <= set(df.columns)
-    except AssertionError as exc:
-        missing_cols = list(set(category_lst) - set(df.columns))
-        logging.error("ERROR: df does not contain %s column(s)", missing_cols)
-        raise ValueError() from exc
+    if response not in df.columns:
+        raise ValueError("ERROR: df does not contain `%s` column", response)
+    
+    missing_cols = list(set(category_lst) - set(df.columns))
+    if missing_cols:
+        raise ValueError(
+            "ERROR: df does not contain %s column(s)", missing_cols
+        )
 
     for category in category_lst:
         prop_dict = df.groupby(category)[response].mean().to_dict()
-        df[category + '_' + response] = df[category].map(prop_dict)
-        logging.info("encoded `%s` column", category)
+        df[f"{category}_{response}"] = df[category].map(prop_dict)
 
     return df
 
