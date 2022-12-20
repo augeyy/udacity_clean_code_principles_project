@@ -292,44 +292,23 @@ def classification_report_image(
     # pylint: disable=too-many-arguments
 
     # Check shape of arrays
-    try:
-        assert (
-            y_train.ndim == y_train_preds_lr.ndim == y_train_preds_rf.ndim
-            == y_test.ndim == y_test_preds_lr.ndim == y_test_preds_rf.ndim
-            == 1
-        )
-    except AssertionError as exc:
-        logging.error("ERROR: arrs must be 1D")
-        raise ValueError() from exc
+    if not (y_train.ndim == y_train_preds_lr.ndim == y_train_preds_rf.ndim
+        == y_test.ndim == y_test_preds_lr.ndim == y_test_preds_rf.ndim
+        == 1):
+        raise ValueError("ERROR: arrs must be 1D")
 
-    try:
-        assert (
-            y_train.shape == y_train_preds_lr.shape == y_train_preds_rf.shape
-        )
-        assert (
-            y_test.shape == y_test_preds_lr.shape == y_test_preds_rf.shape
-        )
-    except AssertionError as exc:
-        logging.error("ERROR: train arrs and test arrs must have same shape")
-        raise ValueError() from exc
+    if not (y_train.shape == y_train_preds_lr.shape == y_train_preds_rf.shape and
+            y_test.shape == y_test_preds_lr.shape == y_test_preds_rf.shape):
+        raise ValueError("ERROR: train arrs and test arrs must have same shape")
 
     results_path = os.path.join(dst_path, "results")
     os.makedirs(results_path, exist_ok=True)
 
-    preds_dict = {
-        "lr": {
-            "train": y_train_preds_lr,
-            "test": y_test_preds_lr
-        },
-        "rf": {
-            "train": y_train_preds_rf,
-            "test": y_test_preds_rf
-        }
-    }
-    for model_name, train_test_dict in preds_dict.items():
-        y_train_preds = train_test_dict["train"]
-        y_test_preds = train_test_dict["test"]
-
+    preds = [
+        ["lr", y_train_preds_lr, y_test_preds_lr],
+        ["rf", y_train_preds_rf, y_test_preds_rf]
+    ]
+    for model_name, y_train_preds, y_test_preds in preds:
         plt.rc('figure', figsize=(5, 5))
         plt.text(
             0.01, 1.25, str('Random Forest Train'),
