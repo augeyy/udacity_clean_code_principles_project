@@ -355,13 +355,10 @@ def feature_importance_plot(model, X_data, dst_path: str = "."):
         None
     """
     # Check that model has the attribute `feature_importances_`
-    try:
-        assert hasattr(model, "feature_importances_")
-    except AssertionError as exc:
-        logging.error(
+    if not hasattr(model, "feature_importances_"):
+        raise ValueError(
             "ERROR: `model` does not have the attribute `feature importances`"
         )
-        raise ValueError() from exc
 
     results_path = os.path.join(dst_path, "results")
     os.makedirs(results_path, exist_ok=True)
