@@ -56,7 +56,7 @@ def import_data(path):
     try:
         df = pd.read_csv(path)
     except FileNotFoundError as exc:
-        raise ValueError("ERROR: file not found at %s", path) from exc
+        raise ValueError(f"ERROR: file not found at {path}") from exc
     else:
         return df
 
@@ -83,8 +83,7 @@ def add_churn_column_to_df(df):
     expected_values_set = {"Existing Customer", "Attrited Customer"}
     if not set(df["Attrition_Flag"].unique()).issubset(expected_values_set):
         raise ValueError(
-            "ERROR: `Attrition_Flag` values must within %s)",
-            expected_values_set
+            f"ERROR: `Attrition_Flag` values must within {expected_values_set}"
         )
 
     df["Churn"] = df["Attrition_Flag"].map({
@@ -116,8 +115,7 @@ def perform_eda(df, dst_path: str = "./images"):
         ["Churn", "Customer_Age", "Marital_Status", "Total_Trans_Ct"]
     if not set(cols_for_eda) <= (set(df.columns)):
         raise ValueError(
-            "ERROR: df does not contain all expected columns %s",
-            cols_for_eda
+            f"ERROR: df does not contain all expected columns {cols_for_eda}"
             )
 
     eda_path = os.path.join(dst_path, "eda")
@@ -193,12 +191,12 @@ def encoder_helper(df, category_lst, response):
     """
     df = df.copy()
     if response not in df.columns:
-        raise ValueError("ERROR: df does not contain `%s` column", response)
-    
+        raise ValueError(f"ERROR: df does not contain `{response}` column")
+
     missing_cols = list(set(category_lst) - set(df.columns))
     if missing_cols:
         raise ValueError(
-            "ERROR: df does not contain %s column(s)", missing_cols
+            f"ERROR: df does not contain {missing_cols} column(s)"
         )
 
     for category in category_lst:
@@ -228,7 +226,7 @@ def perform_feature_engineering(df, response):
     """
     df = df.copy()
     if response not in df.columns:
-        raise ValueError("ERROR: df does not contain `%s` column", response)
+        raise ValueError(f"ERROR: df does not contain `{response}` column")
 
     # Encode categorical features
     # NOTE: mean value is calculated on the entire dataset --> leakage
@@ -238,7 +236,7 @@ def perform_feature_engineering(df, response):
     missing_cols = list(set(FEATURE_LIST) - set(df.columns))
     if missing_cols:
         raise ValueError(
-            "ERROR: df does not contain %s column(s)", missing_cols
+            f"ERROR: df does not contain {missing_cols} column(s)"
         )
 
     X = df[FEATURE_LIST]
