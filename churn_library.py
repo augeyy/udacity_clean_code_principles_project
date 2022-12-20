@@ -432,7 +432,6 @@ def train_models(
     """
     # pylint: disable=too-many-arguments
     # pylint: disable=too-many-locals
-
     os.makedirs(models_path, exist_ok=True)
 
     results_path = os.path.join(images_path, "results")
@@ -448,18 +447,18 @@ def train_models(
     #######
     # Train
     #######
-    logging.info("training lr and rf models...")
     cv_rfc = GridSearchCV(estimator=rfc, param_grid=PARAM_GRID, cv=5)
     cv_rfc.fit(X_train, y_train)
     rfc = cv_rfc.best_estimator_
-    logging.info("finished training RF models via Grid Search")
 
     lrc.fit(X_train, y_train)
-    logging.info("finished training Logistic Regression model")
 
     # Save models
-    model_dict = {"logistic": lrc, "rfc": rfc}
-    for name, model in model_dict.items():
+    models = [
+        ["logistic", lrc],
+        ["rfc", rfc]
+    ]
+    for name, model in models:
         fpath = os.path.join(models_path, f"{name}_clf.pkl")
         dump(model, fpath)
         logging.info("saved %s model artifact @%s", name, fpath)
@@ -467,16 +466,13 @@ def train_models(
     #######
     # Eval
     #######
-    logging.info("making predictions...")
     y_train_preds_rf = rfc.predict(X_train)
     y_test_preds_rf = rfc.predict(X_test)
 
     y_train_preds_lr = lrc.predict(X_train)
     y_test_preds_lr = lrc.predict(X_test)
-    logging.info("finished making predictions!")
 
     # Save ROC curves
-    logging.info("making ROC curves...")
     plt.figure(figsize=(15, 8))
     ax = plt.gca()
     plot_roc_curve(rfc, X_test, y_test, ax=ax, alpha=0.8)
@@ -487,7 +483,6 @@ def train_models(
     logging.info("saved ROC curves @%s", fpath)
 
     # Model results
-    logging.info("making classification results...")
     classification_report_image(
         y_train, y_test,
         y_train_preds_lr, y_train_preds_rf,
@@ -495,7 +490,6 @@ def train_models(
     )
 
     # Shap + Feature importances
-    logging.info("making feature importances plots...")
     feature_importance_plot(cv_rfc.best_estimator_, X_test)
 
 
