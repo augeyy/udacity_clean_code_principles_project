@@ -227,27 +227,19 @@ def perform_feature_engineering(df, response):
         y test and test data
     """
     df = df.copy()
-    try:
-        assert response in df.columns
-    except AssertionError as exc:
-        logging.error("ERROR: df does not contain `%s` column", response)
-        raise ValueError() from exc
+    if response not in df.columns:
+        raise ValueError("ERROR: df does not contain `%s` column", response)
 
     # Encode categorical features
     # NOTE: mean value is calculated on the entire dataset --> leakage
     # Leave it as it is to be consistent with instructions of Udemy project
-    df = encoder_helper(
-        df,
-        CATEGORICAL_COLS,
-        response
-    )
+    df = encoder_helper(df, CATEGORICAL_COLS, response)
 
-    try:
-        assert set(FEATURE_LIST) <= set(df.columns)
-    except AssertionError as exc:
-        missing_cols = list(set(FEATURE_LIST) - set(df.columns))
-        logging.error("ERROR: df does not contain %s column(s)", missing_cols)
-        raise ValueError() from exc
+    missing_cols = list(set(FEATURE_LIST) - set(df.columns))
+    if missing_cols:
+        raise ValueError(
+            "ERROR: df does not contain %s column(s)", missing_cols
+        )
 
     X = df[FEATURE_LIST]
     y = df[response]
@@ -258,7 +250,6 @@ def perform_feature_engineering(df, response):
             test_size=0.3,
             random_state=42
         )
-    logging.info("split train and test sets")
 
     return X_train, X_test, y_train, y_test
 
