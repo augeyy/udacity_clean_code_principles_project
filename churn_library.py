@@ -55,11 +55,10 @@ def import_data(path):
     """
     try:
         df = pd.read_csv(path)
-        logging.info("imported data from %s", path)
+    except FileNotFoundError as exc:
+        raise ValueError("ERROR: file not found at %s", path) from exc
+    else:
         return df
-    except FileNotFoundError:
-        logging.error("ERROR: file not found at %s", path)
-        raise
 
 
 def add_churn_column_to_df(df):

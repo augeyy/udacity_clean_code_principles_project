@@ -39,7 +39,7 @@ class TestImportData:
 	def test_import_file_not_found(self):
 		path = "./this/path/does/not/exists"
 
-		with pytest.raises(FileNotFoundError):
+		with pytest.raises(ValueError):
 			cl.import_data(path)
 
 
