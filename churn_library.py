@@ -77,27 +77,21 @@ def add_churn_column_to_df(df):
         DataFrame containng the new column `Churn` (modify inplace)
     """
     # Check that `Attrition_Flag` exists
-    try:
-        assert "Attrition_Flag" in df.columns
-    except AssertionError as exc:
-        logging.error("ERROR: `Attrition_Flag` column not in df columns")
-        raise ValueError() from exc
+    if not "Attrition_Flag" in df.columns:
+        raise ValueError("ERROR: `Attrition_Flag` column not in df columns")
 
     # Check that `Attrition_Flag` values are well-defined
-    try:
-        expected_values_set = {"Existing Customer", "Attrited Customer"}
-        assert set(df["Attrition_Flag"].unique()).issubset(
+    expected_values_set = {"Existing Customer", "Attrited Customer"}
+    if not set(df["Attrition_Flag"].unique()).issubset(expected_values_set):
+        raise ValueError(
+            "ERROR: `Attrition_Flag` values must within %s)",
             expected_values_set
         )
-    except AssertionError as exc:
-        logging.error(
-            "ERROR: `Attrition_Flag` values must within %s)",
-            expected_values_set)
-        raise ValueError() from exc
 
-    df["Churn"] = df["Attrition_Flag"].apply(
-        lambda val: 0 if val == "Existing Customer" else 1)
-    logging.info("made `Churn` column")
+    df["Churn"] = df["Attrition_Flag"].map({
+        "Existing Customer": 0,
+        "Attrited Customer": 1
+    })
 
     return df
 
