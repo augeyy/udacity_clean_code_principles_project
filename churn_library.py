@@ -6,7 +6,6 @@ of the Machine Learning DevOps Engineer Nanodegree
 Author: Yohann A. <yohann.augey@gmail.com>
 Date: Dec. 2022
 """
-import logging
 import os
 
 from joblib import dump
@@ -28,12 +27,6 @@ from constants import (
 )
 
 os.environ["QT_QPA_PLATFORM"] = "offscreen"
-
-logging.basicConfig(
-    filename="./logs/churn_library.log",
-    level=logging.INFO,
-    filemode="w",
-    format="[%(filename)s:%(lineno)s - %(funcName)30s()] - %(levelname)s - %(message)s")
 
 # To make sure legend, axis labels, etc fit in the figure window
 plt.rcParams['figure.constrained_layout.use'] = True
@@ -129,7 +122,7 @@ def perform_eda(df, dst_path: str = "./images"):
     fig_fpath = os.path.join(eda_path, "churn_hist.png")
     plt.savefig(fig_fpath)
     plt.close()
-    logging.info("saved `Churn` hist @%s", fig_fpath)
+    print(f"saved `Churn` hist {fig_fpath}")
 
     # Plot `Customer_Age` histogram
     plt.figure(figsize=(20, 10))
@@ -139,7 +132,7 @@ def perform_eda(df, dst_path: str = "./images"):
     fig_fpath = os.path.join(eda_path, "customer_age_hist.png")
     plt.savefig(fig_fpath)
     plt.close()
-    logging.info("saved `Custormer_Age` hist @%s", fig_fpath)
+    print(f"saved `Custormer_Age` hist @{fig_fpath}")
 
     # Plot `Marital_Status` bar
     plt.figure(figsize=(20, 10))
@@ -149,7 +142,7 @@ def perform_eda(df, dst_path: str = "./images"):
     fig_fpath = os.path.join(eda_path, "marital_status_bar.png")
     plt.savefig(fig_fpath)
     plt.close()
-    logging.info("saved `Marital_Status` bar plot @%s", fig_fpath)
+    print(f"saved `Marital_Status` bar plot @{fig_fpath}")
 
     # Plot `Total_Trans_Ct` distribution
     plt.figure(figsize=(20, 10))
@@ -157,7 +150,7 @@ def perform_eda(df, dst_path: str = "./images"):
     fig_fpath = os.path.join(eda_path, "total_trans_ct_distri.png")
     plt.savefig(fig_fpath)
     plt.close()
-    logging.info("saved `Total_Trans_Ct` distribution @%s", fig_fpath)
+    print(f"saved `Total_Trans_Ct` distribution @{fig_fpath}")
 
     # Plot correlation
     plt.figure(figsize=(20, 10))
@@ -165,7 +158,7 @@ def perform_eda(df, dst_path: str = "./images"):
     fig_fpath = os.path.join(eda_path, "correlation.png")
     plt.savefig(fig_fpath)
     plt.close()
-    logging.info("saved correlation plot @%s", fig_fpath)
+    print(f"saved correlation plot @{fig_fpath}")
 
 
 def encoder_helper(df, category_lst, response):
@@ -329,7 +322,7 @@ def classification_report_image(
         plt.savefig(fpath)
         plt.close()
 
-        logging.info("saved %s classfication results @%s", model_name, fpath)
+        print(f"saved {model_name} classfication results @{fpath}")
 
 
 def feature_importance_plot(model, X_data, dst_path: str = "."):
@@ -370,7 +363,7 @@ def feature_importance_plot(model, X_data, dst_path: str = "."):
     shap_fpath = os.path.join(results_path, "shap_values.png")
     plt.savefig(shap_fpath)
     plt.close()
-    logging.info("saved shap values plot @%s", shap_fpath)
+    print(f"saved shap values plot @{shap_fpath}")
 
     #########################
     # Plot feature importance
@@ -399,7 +392,7 @@ def feature_importance_plot(model, X_data, dst_path: str = "."):
     feat_imp_fpath = os.path.join(results_path, "feature_importances.png")
     plt.savefig(feat_imp_fpath)
     plt.close()
-    logging.info("saved feature importances plot @%s", feat_imp_fpath)
+    print(f"saved feature importances plot @{feat_imp_fpath}")
 
 
 def train_models(
@@ -459,7 +452,7 @@ def train_models(
     for name, model in models:
         fpath = os.path.join(models_path, f"{name}_clf.pkl")
         dump(model, fpath)
-        logging.info("saved %s model artifact @%s", name, fpath)
+        print(f"saved {name} model artifact @{fpath}")
 
     #######
     # Eval
@@ -478,7 +471,7 @@ def train_models(
     fpath = os.path.join(results_path, "roc_curves.png")
     plt.savefig(fpath)
     plt.close()
-    logging.info("saved ROC curves @%s", fpath)
+    print(f"saved ROC curves @{fpath}")
 
     # Model results
     classification_report_image(
@@ -493,19 +486,24 @@ def train_models(
 
 def main():
     """Function used to run the pipeline"""
-    logging.info("START PIPELINE")
+    print("START PIPELINE")
 
+    print("importing data...")
     df = import_data("./data/bank_data.csv")
 
+    print("adding churn column to dataframe...")
     df = add_churn_column_to_df(df)
 
+    print("performing eda...")
     perform_eda(df)
 
+    print("performing features engineering...")
     X_train, X_test, y_train, y_test = perform_feature_engineering(df, "Churn")
 
+    print("training models...")
     train_models(X_train, X_test, y_train, y_test)
 
-    logging.info("END PIPELINE")
+    print("END PIPELINE")
 
 
 if __name__ == "__main__":
