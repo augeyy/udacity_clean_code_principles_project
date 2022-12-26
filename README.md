@@ -32,8 +32,10 @@ Focus is put on writing code following best software engineering practices (modu
 │
 ├── requirements.txt       <- The requirements file for reproducing the prod environment
 │
-└── requirements_dev.txt   <- The requirements file for reproducing the development environment
-                              eg. tests, linter, etc
+├── requirements_dev.txt   <- The requirements file for reproducing the development environment
+│                             eg. tests, linter, etc
+│
+└── pytest.ini             <- Pytest configuration file
 
 ### Data description
 
@@ -84,4 +86,3 @@ Run the tests
 ```
 pytest -s -v
 ```
-
