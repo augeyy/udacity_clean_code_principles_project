@@ -502,7 +502,9 @@ def train_models(
     )
 
     # Shap + Feature importances
-    feature_importance_plot(cv_rfc.best_estimator_, X_test)
+    feature_importance_plot(
+        cv_rfc.best_estimator_, X_test, dst_path=images_path
+    )
 
 
 def main():
