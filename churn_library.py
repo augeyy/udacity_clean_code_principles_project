@@ -7,7 +7,7 @@ Author: Yohann A. <yohann.augey@gmail.com>
 Date: Dec. 2022
 """
 import os
-from typing import Any
+from typing import Any, List
 
 from joblib import dump
 import matplotlib.pyplot as plt
@@ -95,7 +95,7 @@ def add_churn_column_to_df(
 
 
 def perform_eda(
-    df: pd.dataFrame,
+    df: pd.DataFrame,
     dst_path: str = "./images"
 ):
     """
