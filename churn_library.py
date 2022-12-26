@@ -7,6 +7,7 @@ Author: Yohann A. <yohann.augey@gmail.com>
 Date: Dec. 2022
 """
 import os
+from typing import Any
 
 from joblib import dump
 import matplotlib.pyplot as plt
@@ -34,7 +35,9 @@ os.environ["QT_QPA_PLATFORM"] = "offscreen"
 plt.rcParams['figure.constrained_layout.use'] = True
 
 
-def import_data(path):
+def import_data(
+    path: str
+):
     """
     Read CSV file as DataFrame
 
@@ -56,7 +59,9 @@ def import_data(path):
         return df
 
 
-def add_churn_column_to_df(df):
+def add_churn_column_to_df(
+    df: pd.DataFrame
+):
     """
     Create `Churn` column based on values of `Attrition_Flag` field
 
@@ -89,7 +94,10 @@ def add_churn_column_to_df(df):
     return df
 
 
-def perform_eda(df, dst_path: str = "./images"):
+def perform_eda(
+    df: pd.dataFrame,
+    dst_path: str = "./images"
+):
     """
     Perform EDA on DataFrame and save figures to the `images` folder
 
@@ -163,7 +171,11 @@ def perform_eda(df, dst_path: str = "./images"):
     print(f"saved correlation plot @{fig_fpath}")
 
 
-def encoder_helper(df, category_lst, response):
+def encoder_helper(
+    df: pd.DataFrame,
+    category_lst: List[str],
+    response: str
+):
     """
     Encode categorical column into a new column with proportion
     of dependant variable for each category
@@ -201,7 +213,10 @@ def encoder_helper(df, category_lst, response):
     return df
 
 
-def perform_feature_engineering(df, response):
+def perform_feature_engineering(
+    df: pd.DataFrame,
+    response: str
+):
     """
     Perform feature engineering
 
@@ -248,12 +263,12 @@ def perform_feature_engineering(df, response):
 
 
 def classification_report_image(
-    y_train,
-    y_test,
-    y_train_preds_lr,
-    y_train_preds_rf,
-    y_test_preds_lr,
-    y_test_preds_rf,
+    y_train: np.ndarray,
+    y_test: np.ndarray,
+    y_train_preds_lr: np.ndarray,
+    y_train_preds_rf: np.ndarray,
+    y_test_preds_lr: np.ndarray,
+    y_test_preds_rf: np.ndarray,
     dst_path: str = "./images"
 ):
     """
@@ -262,17 +277,17 @@ def classification_report_image(
 
     Parameters
     ----------
-    y_train : ndarray
+    y_train : np.ndarray
         Training response values
-    y_test : ndarray
+    y_test : np.ndarray
         Test response values
-    y_train_preds_lr : ndarray
+    y_train_preds_lr : np.ndarray
         Training predictions from logistic regression
-    y_train_preds_rf : ndarray
+    y_train_preds_rf : np.ndarray
         Training predictions from random forest
-    y_test_preds_lr : ndarray
+    y_test_preds_lr : np.ndarray
         Test predictions from logistic regression
-    y_test_preds_rf : ndarray
+    y_test_preds_rf : np.ndarray
         Test predictions from random forest
     dst_path : str, default="./images"
         Folder where to save figures.
@@ -327,13 +342,17 @@ def classification_report_image(
         print(f"saved {model_name} classfication results @{fpath}")
 
 
-def feature_importance_plot(model, X_data, dst_path: str = "."):
+def feature_importance_plot(
+    model: Any,
+    X_data: pd.DataFrame,
+    dst_path: str = "."
+):
     """
     Creates and stores the feature importances in path
 
     Parameters
     ----------
-    model
+    model: Any
         Model object containing `feature_importances_` attributes
 
     X_data : pd.DataFrame
@@ -398,10 +417,10 @@ def feature_importance_plot(model, X_data, dst_path: str = "."):
 
 
 def train_models(
-    X_train,
-    X_test,
-    y_train,
-    y_test,
+    X_train: pd.DataFrame,
+    X_test: pd.DataFrame,
+    y_train: pd.DataFrame,
+    y_test: pd.DataFrame,
     models_path: str = "./models",
     images_path: str = "./images",
 ):
