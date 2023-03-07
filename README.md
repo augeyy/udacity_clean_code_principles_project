@@ -11,6 +11,7 @@ Focus is put on writing code following best software engineering practices (modu
 
 ### Project structure
 
+```bash
 ├── README.md              <- The top-level README for developers using this project.
 │
 ├── data                   <- Data from third party sources.
@@ -36,6 +37,7 @@ Focus is put on writing code following best software engineering practices (modu
 │                             eg. tests, linter, etc
 │
 └── pytest.ini             <- Pytest configuration file
+```
 
 ### Data description
 
